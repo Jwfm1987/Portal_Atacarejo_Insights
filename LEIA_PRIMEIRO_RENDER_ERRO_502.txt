@@ -1,0 +1,21 @@
+CORREÇÃO DO ERRO 502 NO RENDER
+
+Esta versão inclui um inicializador próprio para Render: start_render.sh
+
+No Render, use:
+Build Command:
+pip install -r requirements.txt
+
+Start Command:
+bash start_render.sh
+
+Depois clique em:
+Manual Deploy > Clear build cache & deploy
+
+Ao finalizar, teste:
+/health
+/health-db
+/
+
+Se ainda houver erro, abra Logs no Render e procure as linhas que começam com:
+[Atacarejo Insights]

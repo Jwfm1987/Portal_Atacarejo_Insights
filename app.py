@@ -10,12 +10,15 @@ from flask import Flask, abort, flash, g, redirect, render_template, request, se
 from werkzeug.security import check_password_hash, generate_password_hash
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
-# No Render, o filesystem do diretório do app pode ser efêmero e, em alguns casos,
-# gerar erro de escrita/abertura do SQLite. Para protótipo/demo, usamos /tmp no Render.
-# Para produção real, a recomendação continua sendo migrar para PostgreSQL.
+# Render pode não expor sempre a variável RENDER em todos os fluxos de deploy.
+# Por isso também consideramos RENDER_SERVICE_ID e PORT como sinais de ambiente publicado.
+IS_RENDER = bool(os.environ.get("RENDER") or os.environ.get("RENDER_SERVICE_ID") or os.environ.get("PORT"))
+
+# Para demo no Render usamos /tmp para evitar problemas de permissão/escrita no filesystem
+# do diretório do app. Para produção real, migrar para PostgreSQL.
 if os.environ.get("DATABASE_PATH"):
     DATABASE = os.environ["DATABASE_PATH"]
-elif os.environ.get("RENDER"):
+elif IS_RENDER:
     DATABASE = os.path.join("/tmp", "atacarejo_insights.db")
 else:
     DATABASE = os.path.join(BASE_DIR, "instance", "atacarejo_insights.db")
@@ -958,7 +961,9 @@ def get_company_questionnaires(company_id, include_internal=False):
 
 
 def init_db():
-    os.makedirs(os.path.dirname(app.config["DATABASE"]), exist_ok=True)
+    db_dir = os.path.dirname(app.config["DATABASE"]) or "."
+    os.makedirs(db_dir, exist_ok=True)
+    print(f"[Atacarejo Insights] Inicializando banco em: {app.config['DATABASE']}", file=sys.stderr, flush=True)
     with app.app_context():
         db = get_db()
         db.executescript(SCHEMA)
@@ -2492,8 +2497,11 @@ def company_report(company_id):
 # Inicializa o banco também quando o app é importado pelo Gunicorn/Render.
 # No ambiente local, esta chamada é idempotente porque o schema usa CREATE TABLE IF NOT EXISTS.
 try:
+    print("[Atacarejo Insights] Importando app Flask...", file=sys.stderr, flush=True)
     init_db()
+    print("[Atacarejo Insights] App inicializado com sucesso.", file=sys.stderr, flush=True)
 except Exception:
+    print("[Atacarejo Insights] FALHA AO INICIALIZAR O APP.", file=sys.stderr, flush=True)
     traceback.print_exc(file=sys.stderr)
     raise
 
@@ -2531,4 +2539,7 @@ def not_found(e):
 
 
 if __name__ == "__main__":
-    app.run(debug=False, use_reloader=False, host=os.environ.get("APP_HOST", "127.0.0.1"), port=int(os.environ.get("APP_PORT", "5070")))
+    host = os.environ.get("APP_HOST", "0.0.0.0" if IS_RENDER else "127.0.0.1")
+    port = int(os.environ.get("PORT") or os.environ.get("APP_PORT", "5070"))
+    print(f"[Atacarejo Insights] Servidor iniciando em {host}:{port}", file=sys.stderr, flush=True)
+    app.run(debug=False, use_reloader=False, host=host, port=port)

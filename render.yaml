@@ -1,10 +1,12 @@
 services:
   - type: web
-    name: atacarejo-insights-portal
+    name: portal-atacarejo-insights
     env: python
     plan: free
     buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn app:app --bind 0.0.0.0:$PORT
+    startCommand: bash start_render.sh
     envVars:
       - key: SECRET_KEY
         generateValue: true
+      - key: PYTHONUNBUFFERED
+        value: "1"
