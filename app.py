@@ -1,6 +1,8 @@
 import os
 import json
 import sqlite3
+import sys
+import traceback
 from datetime import datetime, date
 from functools import wraps
 
@@ -8,7 +10,15 @@ from flask import Flask, abort, flash, g, redirect, render_template, request, se
 from werkzeug.security import check_password_hash, generate_password_hash
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
-DATABASE = os.path.join(BASE_DIR, "instance", "atacarejo_insights.db")
+# No Render, o filesystem do diretório do app pode ser efêmero e, em alguns casos,
+# gerar erro de escrita/abertura do SQLite. Para protótipo/demo, usamos /tmp no Render.
+# Para produção real, a recomendação continua sendo migrar para PostgreSQL.
+if os.environ.get("DATABASE_PATH"):
+    DATABASE = os.environ["DATABASE_PATH"]
+elif os.environ.get("RENDER"):
+    DATABASE = os.path.join("/tmp", "atacarejo_insights.db")
+else:
+    DATABASE = os.path.join(BASE_DIR, "instance", "atacarejo_insights.db")
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "dev-atacarejo-insights-change-me")
@@ -948,7 +958,7 @@ def get_company_questionnaires(company_id, include_internal=False):
 
 
 def init_db():
-    os.makedirs(os.path.join(BASE_DIR, "instance"), exist_ok=True)
+    os.makedirs(os.path.dirname(app.config["DATABASE"]), exist_ok=True)
     with app.app_context():
         db = get_db()
         db.executescript(SCHEMA)
@@ -1090,10 +1100,19 @@ def init_db():
 
 @app.before_request
 def load_logged_in_user():
+    # Proteção extra para ambiente publicado: se o navegador estiver com cookie antigo
+    # ou se o banco local precisar ser recriado, a página pública não deve cair em erro 500.
     user_id = session.get("user_id")
     g.user = None
     if user_id is not None:
-        g.user = query_one("SELECT * FROM users WHERE id = ? AND active = 1", (user_id,))
+        try:
+            g.user = query_one("SELECT * FROM users WHERE id = ? AND active = 1", (user_id,))
+            if g.user is None:
+                session.clear()
+        except Exception:
+            traceback.print_exc(file=sys.stderr)
+            session.clear()
+            g.user = None
 
 
 
@@ -2472,12 +2491,33 @@ def company_report(company_id):
 
 # Inicializa o banco também quando o app é importado pelo Gunicorn/Render.
 # No ambiente local, esta chamada é idempotente porque o schema usa CREATE TABLE IF NOT EXISTS.
-init_db()
+try:
+    init_db()
+except Exception:
+    traceback.print_exc(file=sys.stderr)
+    raise
 
 
 @app.route("/health")
 def health():
-    return f"OK - Atacarejo Insights Portal ativo na porta {os.environ.get('APP_PORT', '5070')}", 200
+    return f"OK - Atacarejo Insights Portal ativo. Banco: {app.config['DATABASE']}", 200
+
+
+@app.route("/health-db")
+def health_db():
+    try:
+        users = query_one("SELECT COUNT(*) AS c FROM users")["c"]
+        companies = query_one("SELECT COUNT(*) AS c FROM companies")["c"]
+        return f"OK DB - usuarios={users}; empresas={companies}; database={app.config['DATABASE']}", 200
+    except Exception as exc:
+        traceback.print_exc(file=sys.stderr)
+        return f"ERRO DB - {type(exc).__name__}: {exc}", 500
+
+
+@app.errorhandler(500)
+def internal_error(e):
+    traceback.print_exc(file=sys.stderr)
+    return render_template("error.html", code=500, message="Erro interno no servidor. Acesse /health-db para validar o banco e veja os Logs do Render para o detalhe técnico."), 500
 
 
 @app.errorhandler(403)
