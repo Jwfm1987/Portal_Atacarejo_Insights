@@ -1,0 +1,22 @@
+ATACAREJO INSIGHTS PORTAL - V23
+
+Correção principal:
+- O tratamento de erros não depende mais do arquivo templates/error.html.
+- Isso evita o erro em cascata: jinja2.exceptions.TemplateNotFound: error.html.
+
+Configuração recomendada no Render:
+Build Command:
+pip install -r requirements.txt
+
+Start Command:
+python app.py
+
+Após enviar ao GitHub:
+1. Commit changes na branch main.
+2. Render > Manual Deploy > Clear build cache & deploy.
+3. Testar:
+   /health
+   /health-db
+   /
+
+Se aparecer erro interno, a página agora mostrará links de diagnóstico e os logs do Render mostrarão a causa principal acima do erro.

@@ -2560,48 +2560,61 @@ def health_db():
 
 
 def safe_error_response(code, title, message):
-    """Renderiza a página de erro sem depender obrigatoriamente do template.
+    """Resposta de erro independente de template.
 
-    Isso evita um erro em cascata no Render caso o arquivo templates/error.html
-    não seja enviado ao repositório ou seja removido por engano.
+    Importante para o Render: se a causa do erro for justamente carregamento de
+    templates, o handler de erro não pode chamar render_template(), pois isso
+    cria erro em cascata e mascara a causa principal.
     """
-    try:
-        return render_template("error.html", code=code, title=title, message=message), code
-    except Exception as template_exc:
-        print("[Atacarejo Insights] Falha ao renderizar templates/error.html", file=sys.stderr, flush=True)
-        traceback.print_exc(file=sys.stderr)
-        html = f"""
-        <!doctype html>
-        <html lang=\"pt-BR\">
-        <head>
-            <meta charset=\"utf-8\">
-            <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">
-            <title>{code} - Atacarejo Insights Portal</title>
-            <style>
-                body {{ margin:0; min-height:100vh; display:grid; place-items:center;
-                    background:#07030d; color:#f8f7ff; font-family:Arial, sans-serif; }}
-                .card {{ max-width:760px; margin:24px; padding:32px; border-radius:22px;
-                    background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.12); }}
-                h1 {{ margin:0 0 12px; font-size:28px; }}
-                p {{ color:#d9d2ec; line-height:1.55; }}
-                a {{ color:#ff9f1a; font-weight:700; }}
-                .badge {{ display:inline-block; padding:6px 10px; border-radius:999px;
-                    background:linear-gradient(90deg,#6610f2,#ff9f1a); margin-bottom:16px; }}
-                code {{ color:#ffcf7a; }}
-            </style>
-        </head>
-        <body>
-            <main class=\"card\">
-                <div class=\"badge\">Atacarejo Insights Portal</div>
-                <h1>{title}</h1>
-                <p>{message}</p>
-                <p>Teste técnico: <a href=\"/health\">/health</a> · <a href=\"/health-db\">/health-db</a></p>
-                <p style=\"font-size:13px;color:#aaa\">Fallback ativo porque o template de erro não foi carregado. Verifique se a pasta <code>templates</code> foi enviada ao GitHub.</p>
-            </main>
-        </body>
-        </html>
-        """
-        return html, code
+    import html as _html
+    title_safe = _html.escape(str(title))
+    message_safe = _html.escape(str(message))
+    code_safe = _html.escape(str(code))
+    html = f"""
+    <!doctype html>
+    <html lang="pt-BR">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>{code_safe} - Atacarejo Insights Portal</title>
+        <style>
+            :root {{ --roxo:#6610f2; --laranja:#ff9f1a; --bg:#06020b; --card:#151020; }}
+            * {{ box-sizing:border-box; }}
+            body {{ margin:0; min-height:100vh; display:grid; place-items:center;
+                background:radial-gradient(circle at 80% 20%, rgba(102,16,242,.25), transparent 28%), var(--bg);
+                color:#f8f7ff; font-family:Arial, Helvetica, sans-serif; padding:24px; }}
+            .card {{ width:min(860px, 100%); padding:36px; border-radius:24px;
+                background:rgba(21,16,32,.94); border:1px solid rgba(255,255,255,.12);
+                box-shadow:0 24px 80px rgba(0,0,0,.35); }}
+            .badge {{ display:inline-block; padding:8px 14px; border-radius:999px;
+                background:linear-gradient(90deg,var(--roxo),var(--laranja)); font-weight:700; margin-bottom:18px; }}
+            h1 {{ margin:0 0 14px; font-size:clamp(26px,4vw,38px); }}
+            p {{ color:#ddd6f3; line-height:1.6; font-size:16px; }}
+            a {{ color:var(--laranja); font-weight:700; text-decoration:none; }}
+            .actions {{ display:flex; gap:12px; flex-wrap:wrap; margin-top:22px; }}
+            .btn {{ display:inline-block; padding:12px 16px; border-radius:12px; background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.14); }}
+            code {{ color:#ffcf7a; background:rgba(255,255,255,.06); padding:2px 6px; border-radius:6px; }}
+            .small {{ color:#aaa; font-size:13px; margin-top:22px; }}
+        </style>
+    </head>
+    <body>
+        <main class="card">
+            <div class="badge">Atacarejo Insights Portal</div>
+            <h1>{title_safe}</h1>
+            <p>{message_safe}</p>
+            <div class="actions">
+                <a class="btn" href="/">Página inicial</a>
+                <a class="btn" href="/login">Login</a>
+                <a class="btn" href="/health">Teste /health</a>
+                <a class="btn" href="/health-db">Teste /health-db</a>
+                <a class="btn" href="/limpar-sessao">Limpar sessão</a>
+            </div>
+            <p class="small">Esta resposta não depende de <code>templates/error.html</code>. Se ela aparecer, consulte os Logs do Render para o traceback original acima desta mensagem.</p>
+        </main>
+    </body>
+    </html>
+    """
+    return html, int(code)
 
 
 @app.errorhandler(500)
