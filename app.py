@@ -1295,9 +1295,22 @@ def get_project_with_company(project_id):
 
 @app.route("/")
 def index():
-    if g.user:
-        return redirect_for_user(g.user)
+    # A página inicial pública deve ser sempre o primeiro contato, mesmo que exista cookie antigo.
+    # Depois do login, o usuário é direcionado ao ambiente permitido.
     return render_template("public_home.html", content=get_client_about_content())
+
+
+@app.route("/portal")
+@login_required
+def portal_redirect():
+    return redirect_for_user(g.user)
+
+
+@app.route("/limpar-sessao")
+def clear_session_public():
+    session.clear()
+    flash("Sessão local limpa. Acesse novamente pelo login.", "success")
+    return redirect(url_for("index"))
 
 
 @app.route("/cadastro", methods=("GET", "POST"))
@@ -2506,6 +2519,30 @@ except Exception:
     raise
 
 
+@app.route("/reset-demo-db")
+def reset_demo_db():
+    # Rota técnica temporária para limpar banco SQLite de demonstração no Render quando versões antigas
+    # deixarem schema incompatível em /tmp. Use somente durante testes.
+    if request.args.get("confirmar") != "SIM":
+        return "Para recriar o banco de demonstração, acesse /reset-demo-db?confirmar=SIM", 400
+    try:
+        db_path = app.config["DATABASE"]
+        try:
+            if hasattr(g, "db") and g.db is not None:
+                g.db.close()
+                g.pop("db", None)
+        except Exception:
+            pass
+        if os.path.exists(db_path):
+            os.remove(db_path)
+        init_db()
+        session.clear()
+        return f"OK - banco recriado em {db_path}. Volte para /", 200
+    except Exception as exc:
+        traceback.print_exc(file=sys.stderr)
+        return f"ERRO ao recriar banco: {type(exc).__name__}: {exc}", 500
+
+
 @app.route("/health")
 def health():
     return f"OK - Atacarejo Insights Portal ativo. Banco: {app.config['DATABASE']}", 200
@@ -2570,7 +2607,9 @@ def safe_error_response(code, title, message):
 @app.errorhandler(500)
 def internal_error(e):
     traceback.print_exc(file=sys.stderr)
-    return safe_error_response(500, "Erro interno no servidor", "O servidor encontrou uma falha ao processar a solicitação. Acesse /health-db para validar o banco e veja os Logs do Render para o detalhe técnico.")
+    original = getattr(e, "original_exception", None) or e
+    detail = f"Detalhe técnico: {type(original).__name__}: {original}"
+    return safe_error_response(500, "Erro interno no servidor", "O servidor encontrou uma falha ao processar a solicitação. " + detail + " | Acesse /health-db para validar o banco e veja os Logs do Render para o traceback completo.")
 
 
 @app.errorhandler(403)

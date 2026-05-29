@@ -1,0 +1,18 @@
+Atacarejo Insights Portal v22 - correção Render sessão/debug
+
+Alterações:
+- Página inicial / agora sempre exibe a landing pública, mesmo com cookie antigo.
+- Criada rota /portal para redirecionar usuário logado conforme permissões.
+- Criada rota /limpar-sessao para limpar cookies/sessão no Render.
+- Criada rota técnica /reset-demo-db?confirmar=SIM para recriar banco SQLite de demonstração no Render durante testes.
+- Página de erro mostra o detalhe técnico resumido, facilitando diagnóstico.
+
+Render:
+Build Command: pip install -r requirements.txt
+Start Command: python app.py
+
+Teste:
+/health
+/health-db
+/limpar-sessao
+/reset-demo-db?confirmar=SIM
