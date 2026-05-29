@@ -1,0 +1,16 @@
+ATACAREJO INSIGHTS PORTAL - V10 CORRIGIDA
+
+1) Extraia TODO o arquivo ZIP.
+2) Feche as janelas pretas antigas do aplicativo.
+3) Execute: INICIAR_APP_CORRIGIDO_PORTA_5070.bat
+4) Aguarde aparecer: Running on http://127.0.0.1:5070
+5) Acesse: http://localhost:5070/login
+
+Acessos:
+Admin: admin@atacarejoinsights.com | senha: admin123
+Cliente: cliente@demo.com | senha: cliente123
+
+Se ainda não abrir:
+- Execute PARAR_SERVIDORES_ANTIGOS.bat
+- Execute novamente INICIAR_APP_CORRIGIDO_PORTA_5070.bat
+- Envie print da janela preta e do arquivo logs/erro_inicializacao.txt

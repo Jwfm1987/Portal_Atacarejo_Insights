@@ -1,0 +1,59 @@
+ATACAREJO INSIGHTS PORTAL - V11
+
+Principais melhorias desta versão:
+
+1. Questionários de imersão por áreas ampliados
+   Foram incluídas 32 áreas normalmente presentes em empresas de supermercado, atacarejo, distribuição e varejo alimentar.
+
+2. Áreas dinâmicas
+   O administrador pode adicionar novas áreas caso o cliente possua uma estrutura não mapeada previamente.
+
+3. Roteiro-base automático
+   Ao criar um questionário e selecionar uma área mapeada, se o campo de perguntas ficar em branco, o sistema cria automaticamente perguntas-base adequadas à área escolhida.
+
+4. Áreas incluídas no mapeamento:
+   - Estratégia e Diretoria
+   - Governança e Processos
+   - Operação de loja
+   - Comercial e Vendas
+   - Marketing
+   - Trade Marketing
+   - Compras
+   - Gestão de Categorias e Sortimento
+   - Pricing e Margem
+   - Abastecimento e Reposição
+   - Supply Chain
+   - Planejamento de Demanda e S&OP
+   - Logística
+   - Distribuição e Transportes
+   - Centro de Distribuição e Armazenagem
+   - Estoque e Inventário
+   - Prevenção de Perdas
+   - Financeiro e Tesouraria
+   - Controladoria
+   - Contabilidade
+   - Fiscal e Tributário
+   - Recursos Humanos
+   - Departamento Pessoal
+   - Tecnologia da Informação
+   - BI, Dados e Inteligência de Mercado
+   - E-commerce e Omnichannel
+   - Atendimento ao Cliente e CRM
+   - Expansão e Novos Negócios
+   - Jurídico e Compliance
+   - Qualidade e Segurança Alimentar
+   - Manutenção e Facilities
+   - ESG e Sustentabilidade
+
+Como iniciar:
+1. Extraia o ZIP.
+2. Execute INICIAR_APLICATIVO_WINDOWS.bat.
+3. Acesse http://localhost:5070/login.
+
+Acessos de teste:
+Administrador: admin@atacarejoinsights.com / admin123
+Cliente: cliente@demo.com / cliente123
+Operações: operacoes@demo.com / cliente123
+Compras: compras@demo.com / cliente123
+Vendas: vendas@demo.com / cliente123
+Diretoria: diretoria@demo.com / cliente123

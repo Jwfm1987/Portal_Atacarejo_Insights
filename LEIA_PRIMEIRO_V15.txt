@@ -1,0 +1,34 @@
+ATACAREJO INSIGHTS PORTAL - V15
+
+Principais mudanças:
+1. Cadastro público simplificado para primeiro contato:
+   - Nome do solicitante
+   - Nome da empresa
+   - Estado da matriz
+   - Telefone
+   - E-mail
+
+2. Informações completas da empresa passam a ser tratadas posteriormente no ambiente do cliente, após reunião, apresentação do projeto e fechamento contratual.
+
+3. Alterações feitas pelo cliente em dados cadastrais, respostas, documentos e novos usuários passam por aprovação da Atacarejo Insights.
+
+4. Nova gestão de usuários e perfis:
+   - Perfis internos da Atacarejo Insights
+   - Perfis de clientes
+   - Área/função principal
+   - Escopo de acesso
+   - Vínculo com cliente
+   - Vínculo com projetos específicos
+
+5. Cliente administrador pode solicitar novos usuários para sua empresa, mas a criação depende de aprovação administrativa.
+
+Acesso local:
+http://localhost:5070
+
+Administrador:
+admin@atacarejoinsights.com
+admin123
+
+Cliente:
+cliente@demo.com
+cliente123

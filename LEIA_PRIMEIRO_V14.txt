@@ -1,0 +1,18 @@
+ATACAREJO INSIGHTS - V14
+
+Esta versão inclui:
+- Página pública inicial para ser usada no domínio atacarejoinsights.com.br
+- Cadastro de interessados/leads
+- Login separado para clientes contratados
+- Administração de leads e conversão em cliente
+- Fila de aprovação para alterações cadastrais, respostas editadas e dados enviados pelo cliente
+- Tarefas com responsável, início, prazo, conclusão, atrasos, prorrogações, cancelamentos e conclusão no prazo
+
+COMO RODAR:
+1. Extraia o ZIP.
+2. Execute INICIAR_APLICATIVO_WINDOWS.bat.
+3. Acesse http://localhost:5070
+
+ACESSOS:
+Admin: admin@atacarejoinsights.com / admin123
+Cliente: cliente@demo.com / cliente123

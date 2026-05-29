@@ -1,0 +1,8 @@
+Caso o Chrome continue preso no endereço antigo:
+
+1. Abra no Chrome: chrome://serviceworker-internals
+2. Procure registros contendo localhost:5000 ou 127.0.0.1:5000
+3. Clique em Unregister/Stop, se aparecer.
+4. Depois acesse somente: http://localhost:5060/login
+
+Alternativa simples: abra em janela anônima ou use Microsoft Edge no endereço http://localhost:5060/login

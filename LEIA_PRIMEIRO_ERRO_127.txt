@@ -1,0 +1,18 @@
+VERSÃO V8 - PORTA 5060 - SEM CACHE/PWA
+
+SE O NAVEGADOR MOSTRAR "NAO E POSSIVEL ACESSAR ESSE SITE":
+
+1. Verifique se a janela preta do inicializador continua aberta.
+2. Nessa janela precisa aparecer:
+   Running on http://127.0.0.1:5060
+3. Se a janela fechou ou apareceu erro, o servidor local nao esta rodando.
+4. Execute novamente INICIAR_APLICATIVO_WINDOWS.bat dentro da pasta EXTRAIDA.
+5. Nao execute o .bat de dentro do ZIP.
+6. Se ainda falhar, envie um print da janela preta inteira e o arquivo logs/erro_inicializacao.txt.
+
+IMPORTANTE:
+O endereco 127.0.0.1:5060 so funciona no computador onde o app esta rodando.
+A janela do inicializador precisa ficar aberta enquanto voce usa o app.
+
+
+ATUALIZAÇÃO V6: esta versão abre em http://localhost:5060/login e não usa service worker, para evitar cache antigo do Chrome em 127.0.0.1:5060.

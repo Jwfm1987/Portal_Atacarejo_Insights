@@ -1,0 +1,24 @@
+VERSÃO V8 - PORTA 5060 - SEM CACHE/PWA
+
+ATACAREJO INSIGHTS PORTAL - V7 LOGIN CORRIGIDO
+
+IMPORTANTE:
+1) Extraia o ZIP antes de executar.
+2) Abra a pasta extraída.
+3) Dê dois cliques em INICIAR_APLICATIVO_WINDOWS.bat.
+4) Mantenha a janela preta aberta.
+5) Use somente este endereço:
+
+   http://localhost:5060/login
+
+NÃO use http://localhost:5060 nesta versão.
+
+Correções da V7:
+- Login agora redireciona diretamente para o painel correto, sem passar pela rota raiz.
+- Porta padrão alterada para 5060 para fugir do cache antigo da porta 5060.
+- PWA/service worker desativado para evitar tela de erro persistente no Chrome.
+- Adicionada rota de teste: http://localhost:5060/health
+
+Acessos:
+Admin: admin@atacarejoinsights.com | senha: admin123
+Cliente: cliente@demo.com | senha: cliente123

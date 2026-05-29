@@ -1,0 +1,20 @@
+ATACAREJO INSIGHTS PORTAL - V16
+
+Mudança principal desta versão:
+
+1. A página pública institucional é o primeiro contato do cliente antes do login.
+2. A página pública contém apresentação da Atacarejo Insights, insights de mercado, metodologia, referências e botões para cadastro de interesse ou acesso ao portal.
+3. A interface interna do cliente não exibe mais a seção institucional sobre a Atacarejo Insights/mercado.
+4. Após o login, o usuário é direcionado automaticamente conforme seu perfil/permissão:
+   - usuários internos/admins: painel administrativo;
+   - clientes: ambiente restrito do cliente.
+5. O menu interno do cliente ficou focado em projeto, empresa, dados cadastrais, usuários, diagnóstico, imersões e acompanhamento.
+
+Execução:
+1. Extraia o ZIP.
+2. Execute INICIAR_APLICATIVO_WINDOWS.bat.
+3. Acesse http://localhost:5070
+
+Acessos de teste:
+Admin: admin@atacarejoinsights.com / admin123
+Cliente: cliente@demo.com / cliente123

@@ -1,0 +1,27 @@
+ATACAREJO INSIGHTS PORTAL - V12
+
+Atualização principal:
+- Jornada do projeto exibida em formato horizontal.
+- A jornada destaca apenas as etapas, sem ocupar a tela com descrições longas.
+- Cada etapa agora é clicável.
+- Ao clicar em uma etapa, o usuário é direcionado para uma tela específica com as informações daquela etapa.
+
+Tela de detalhes da etapa:
+- Status da etapa.
+- Projeto vinculado.
+- Ordem da etapa.
+- Data de início e término.
+- Descrição/informações da etapa.
+- Objetivo e progresso geral do projeto.
+- Plano de ação relacionado ao projeto.
+- Registros e observações visíveis.
+
+Como iniciar:
+1. Extraia todo o ZIP.
+2. Execute INICIAR_APLICATIVO_WINDOWS.bat.
+3. Aguarde aparecer Running on http://127.0.0.1:5070.
+4. Acesse http://localhost:5070/login.
+
+Acessos:
+Admin: admin@atacarejoinsights.com / admin123
+Cliente: cliente@demo.com / cliente123
