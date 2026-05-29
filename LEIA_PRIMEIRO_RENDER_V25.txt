@@ -1,0 +1,22 @@
+ATACAREJO INSIGHTS PORTAL - V25 RENDER COM TEMPLATES EMBUTIDOS
+
+Esta versão foi criada para corrigir erros do Render como:
+- TemplateNotFound: public_home.html
+- TemplateNotFound: error.html
+- pasta templates não enviada ao GitHub/Render
+
+Mesmo que a pasta templates não seja enviada, o app.py possui templates embutidos e consegue carregar a landing page, login e telas principais.
+
+Configuração no Render:
+Build Command:
+  pip install -r requirements.txt
+
+Start Command:
+  python app.py
+
+Depois de subir no GitHub:
+1. Commit direto na main.
+2. Render > Manual Deploy > Clear build cache & deploy.
+3. Testar /health e /health-db antes da página principal.
+
+Atenção: para manter o layout completo, envie também as pastas templates/ e static/.

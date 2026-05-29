@@ -1,0 +1,25 @@
+ATACAREJO INSIGHTS PORTAL - V24
+
+Correção Render: TemplateNotFound public_home.html.
+
+O erro visto nos logs indica que a pasta templates ou o arquivo templates/public_home.html não chegou corretamente ao Render/GitHub.
+
+Esta versão inclui:
+- fallback interno para a página pública /;
+- fallback interno para /login;
+- fallback interno para /cadastro;
+- logs de diagnóstico informando se a pasta templates existe no Render.
+
+IMPORTANTE PARA SUBIR NO GITHUB/RENDER:
+1. Extraia o ZIP.
+2. Envie TODOS os arquivos e pastas, principalmente:
+   - app.py
+   - requirements.txt
+   - static/
+   - templates/
+3. No Render:
+   Build Command: pip install -r requirements.txt
+   Start Command: python app.py
+4. Use Manual Deploy > Clear build cache & deploy.
+
+Se nos logs aparecer "templates_dir exists=False", você enviou o projeto sem a pasta templates.
