@@ -1,1 +1,1 @@
-web: bash start_render.sh
+web: python app.py

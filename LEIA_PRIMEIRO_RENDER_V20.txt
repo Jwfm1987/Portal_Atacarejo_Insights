@@ -1,0 +1,24 @@
+ATACAREJO INSIGHTS PORTAL - V20 RENDER START SIMPLES
+
+Esta versão foi preparada para evitar o erro 502 no Render usando inicialização direta com Python, sem depender de Gunicorn no comando principal.
+
+CONFIGURAÇÕES NO RENDER:
+
+Build Command:
+pip install -r requirements.txt
+
+Start Command:
+python app.py
+
+Depois clique em:
+Manual Deploy > Clear build cache & deploy
+
+Após aparecer Deploy live, teste nesta ordem:
+https://portal-atacarejo-insights.onrender.com/health
+https://portal-atacarejo-insights.onrender.com/health-db
+https://portal-atacarejo-insights.onrender.com/
+
+Se ainda aparecer HTTP 502, abra Monitor > Logs no Render e procure as linhas que começam com:
+[Atacarejo Insights]
+
+O erro exato estará logo abaixo dessas linhas.
