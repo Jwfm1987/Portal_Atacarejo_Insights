@@ -1,0 +1,18 @@
+VERSÃO V26 - LOGO EMBUTIDA PARA RENDER
+
+Correção aplicada:
+- A logo principal agora também fica embutida no app.py como data URI.
+- Isso evita imagem quebrada caso a pasta static/img não suba corretamente para o Render.
+- A landing page, login e áreas internas usam a logo embutida.
+
+No Render use:
+Build Command: pip install -r requirements.txt
+Start Command: python app.py
+
+Depois faça: Manual Deploy > Clear build cache & deploy.
+
+Teste:
+/health
+/health-db
+/
+/login
