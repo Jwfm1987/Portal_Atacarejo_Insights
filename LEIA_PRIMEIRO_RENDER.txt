@@ -1,0 +1,28 @@
+ATACAREJO INSIGHTS PORTAL - V17 CORREÇÃO PARA RENDER
+
+Erro corrigido:
+- "bash: line 1: gunicorn: command not found"
+- "Exited with status 127"
+
+Causa:
+O Render estava tentando iniciar o sistema com gunicorn, mas o pacote gunicorn não estava no arquivo requirements.txt.
+
+Arquivos adicionados/alterados:
+- requirements.txt: incluído gunicorn==22.0.0
+- Procfile: incluído comando web para Render
+- render.yaml: incluído buildCommand e startCommand
+- app.py: banco inicializado também quando o app é carregado pelo Gunicorn
+
+Configuração recomendada no Render:
+Build Command:
+pip install -r requirements.txt
+
+Start Command:
+gunicorn app:app --bind 0.0.0.0:$PORT
+
+Observação importante:
+Esta versão usa SQLite, adequada para demonstração e protótipo. Para uso real com clientes, recomenda-se migrar para PostgreSQL, pois bancos SQLite em hospedagens gratuitas podem perder dados em reinícios/deploys se não houver disco persistente configurado.
+
+Acessos de teste:
+Administrador: admin@atacarejoinsights.com / admin123
+Cliente: cliente@demo.com / cliente123

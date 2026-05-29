@@ -2470,6 +2470,10 @@ def company_report(company_id):
 
 # Service worker desativado nesta versão local para evitar cache antigo do Chrome.
 
+# Inicializa o banco também quando o app é importado pelo Gunicorn/Render.
+# No ambiente local, esta chamada é idempotente porque o schema usa CREATE TABLE IF NOT EXISTS.
+init_db()
+
 
 @app.route("/health")
 def health():
@@ -2487,5 +2491,4 @@ def not_found(e):
 
 
 if __name__ == "__main__":
-    init_db()
-    app.run(debug=False, use_reloader=False, host="127.0.0.1", port=int(os.environ.get("APP_PORT", "5070")))
+    app.run(debug=False, use_reloader=False, host=os.environ.get("APP_HOST", "127.0.0.1"), port=int(os.environ.get("APP_PORT", "5070")))
