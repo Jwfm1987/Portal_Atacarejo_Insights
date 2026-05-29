@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% block title %}Usuários do cliente · Atacarejo Insights{% endblock %}
+{% block content %}
+<header class="page-header">
+  <div>
+    <p class="eyebrow">Acessos da empresa</p>
+    <h1>Usuários do cliente</h1>
+    <p>Solicite novos usuários para sua empresa. Por segurança e confidencialidade, a Atacarejo Insights revisa e aprova a criação antes da liberação definitiva.</p>
+  </div>
+</header>
+
+<section class="grid-2">
+  <div class="panel">
+    <div class="panel-title"><h2>Solicitar novo usuário</h2><small>A solicitação ficará pendente de aprovação administrativa.</small></div>
+    <form method="post" class="form-stack">
+      <label>Nome<input name="name" required></label>
+      <label>E-mail<input name="email" type="email" required></label>
+      <label>Senha inicial sugerida<input name="password" type="password" placeholder="Padrão: cliente123"></label>
+      <label>Perfil do cliente
+        <select name="profile_model" required>
+          {% for key, p in client_profile_templates.items() %}<option value="{{ key }}">{{ p.label }}</option>{% endfor %}
+        </select>
+      </label>
+      <label>Área/função<input name="department_area" placeholder="Ex.: Operações, Compras, Marketing, Diretoria..."></label>
+      <label>Escopo de acesso
+        <select name="access_scope">
+          <option value="company_only">Somente empresa vinculada</option>
+          <option value="area_only">Somente área/função informada</option>
+          <option value="read_only">Somente visualização</option>
+        </select>
+      </label>
+      <label>Observações<textarea name="permission_notes" rows="3" placeholder="Ex.: responderá apenas questionários de compras; visualizará relatórios executivos..."></textarea></label>
+      <button class="btn-primary" type="submit">Enviar para aprovação</button>
+    </form>
+  </div>
+
+  <div class="panel">
+    <div class="panel-title"><h2>Usuários ativos da empresa</h2></div>
+    {% for u in company_users %}
+      <div class="user-row">
+        <div><strong>{{ u.name }}</strong><small>{{ u.email }} · {{ u.department_area or '-' }}</small><small>{{ access_levels.get(u.access_scope, u.access_scope or 'Escopo padrão') }}</small></div>
+        <span class="status-pill">{{ profile_label(u.profile_model) }}</span>
+      </div>
+    {% else %}<p class="muted">Nenhum usuário vinculado.</p>{% endfor %}
+  </div>
+</section>
+
+<section class="panel">
+  <div class="panel-title"><h2>Solicitações enviadas</h2><small>Histórico de pedidos de criação de usuários.</small></div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Solicitação</th><th>Status</th><th>Data</th><th>Observação da Atacarejo</th></tr></thead>
+      <tbody>
+        {% for r in pending %}
+        <tr>
+          <td>{{ r.field_name }}<br><small>{{ r.new_value }}</small></td>
+          <td><span class="status-pill">{{ r.status }}</span></td>
+          <td>{{ r.created_at }}</td>
+          <td>{{ r.admin_note or '-' }}</td>
+        </tr>
+        {% else %}<tr><td colspan="4">Nenhuma solicitação de usuário registrada.</td></tr>{% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

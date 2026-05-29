@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#5f00d2">
+  <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title>{% block title %}Atacarejo Insights{% endblock %}</title>
+  <link rel="icon" href="{{ url_for('static', filename='img/icon-192.png') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=16">
+</head>
+<body>
+  {% if g.user %}
+  <aside class="sidebar">
+    <a class="brand" href="{{ url_for('index') }}">
+      <img src="{{ url_for('static', filename='img/logo_mark_dark.png') }}" alt="Atacarejo Insights">
+      <span><strong>Atacarejo</strong><small>Insights Portal</small></span>
+    </a>
+    <nav>
+      {% if g.user.role in ['admin', 'consultant'] %}
+      <a href="{{ url_for('admin_dashboard') }}">Visão geral</a>
+      <a href="{{ url_for('admin_leads') }}">Leads do site</a>
+      <a href="{{ url_for('admin_approvals') }}">Aprovações</a>
+      <a href="{{ url_for('clients') }}">Clientes</a>
+      <a href="{{ url_for('users') }}">Usuários e acessos</a>
+      {% else %}
+      <a href="{{ url_for('client_dashboard') }}">Meu projeto</a>
+      <a href="{{ url_for('company_detail', company_id=g.user.company_id) }}">Minha empresa</a>
+      <a href="{{ url_for('client_company_edit') }}">Alterações cadastrais</a>
+      {% if g.user.role == 'client_admin' %}<a href="{{ url_for('client_users') }}">Usuários do cliente</a>{% endif %}
+      <a href="{{ url_for('diagnostic', company_id=g.user.company_id) }}">Diagnóstico</a>
+      {% endif %}
+    </nav>
+    <div class="sidebar-footer">
+      <small>{{ g.user.name }}</small>
+      <small>{{ role_labels.get(g.user.role, g.user.role) }}</small>
+      <a class="logout" href="{{ url_for('logout') }}">Sair</a>
+    </div>
+  </aside>
+  {% endif %}
+
+  <main class="main {% if not g.user %}main-public{% endif %}">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="flash-area">
+        {% for category, message in messages %}
+          <div class="flash {{ category }}">{{ message }}</div>
+        {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+    <footer class="app-footer">© {{ current_year }} Atacarejo Insights · Planejamento, dados e gestão consultiva com confidencialidade por cliente</footer>
+  </main>
+  <script src="{{ url_for('static', filename='js/app.js') }}?v=16"></script>
+</body>
+</html>

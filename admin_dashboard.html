@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% block title %}Visão geral · Atacarejo Insights{% endblock %}
+{% block content %}
+<header class="page-header">
+  <div>
+    <p class="eyebrow">Administração</p>
+    <h1>Visão geral da Atacarejo Insights</h1>
+    <p>Controle central de clientes, projetos, produtividade, contratos e diagnóstico.</p>
+  </div>
+  <a class="btn-primary" href="{{ url_for('client_new') }}">Novo cliente</a>
+</header>
+
+<section class="metric-grid">
+  <article class="metric-card"><span>Clientes cadastrados</span><strong>{{ metrics.clients }}</strong></article>
+  <article class="metric-card"><span>Projetos ativos</span><strong>{{ metrics.active_projects }}</strong></article>
+  <article class="metric-card"><span>Tarefas abertas</span><strong>{{ metrics.open_tasks }}</strong></article>
+  <article class="metric-card"><span>Receita vigente</span><strong>R$ {{ '%.2f'|format(metrics.revenue or 0) }}</strong></article>
+  <article class="metric-card accent"><span>Maturidade média</span><strong>{{ '%.1f'|format(metrics.avg_maturity or 0) }}/5</strong></article>
+  <article class="metric-card"><span>Leads em aberto</span><strong>{{ metrics.pending_leads }}</strong><small><a class="link" href="{{ url_for('admin_leads') }}">Gerenciar leads</a></small></article>
+  <article class="metric-card"><span>Aprovações pendentes</span><strong>{{ metrics.pending_approvals }}</strong><small><a class="link" href="{{ url_for('admin_approvals') }}">Revisar alterações</a></small></article>
+</section>
+
+<section class="grid-2">
+  <div class="panel">
+    <div class="panel-title"><h2>Clientes e maturidade</h2><a href="{{ url_for('clients') }}">Ver todos</a></div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Cliente</th><th>Status</th><th>Projetos</th><th>Maturidade</th><th></th></tr></thead>
+        <tbody>
+          {% for c in companies %}
+          <tr>
+            <td><strong>{{ c.name }}</strong><br><small>{{ c.segment or '-' }} · {{ c.city or '-' }}/{{ c.state or '-' }}</small></td>
+            <td><span class="status-pill">{{ c.status }}</span></td>
+            <td>{{ c.projects_count }}</td>
+            <td>{{ '%.1f'|format(c.maturity or 0) }}/5</td>
+            <td><a class="link" href="{{ url_for('company_detail', company_id=c.id) }}">Abrir</a></td>
+          </tr>
+          {% else %}
+          <tr><td colspan="5">Nenhum cliente cadastrado.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-title"><h2>Pipeline dos projetos</h2></div>
+    {% for p in pipeline %}
+      <div class="pipeline-row">
+        <div><strong>{{ p.phase }}</strong><small>{{ p.total }} projeto(s)</small></div>
+        <div class="progress"><span style="width: {{ p.avg_progress or 0 }}%"></span></div>
+        <small>{{ p.avg_progress or 0 }}%</small>
+      </div>
+    {% else %}
+      <p class="muted">Sem projetos para exibir.</p>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="panel">
+  <div class="panel-title"><h2>Riscos de prazo</h2></div>
+  <div class="cards-row">
+    {% for t in overdue %}
+    <article class="mini-card danger">
+      <small>{{ t.company_name }}</small>
+      <strong>{{ t.title }}</strong>
+      <span>{{ t.project_name }}</span>
+      <em>Vencimento: {{ t.due_date }}</em>
+    </article>
+    {% else %}
+    <p class="muted">Nenhuma tarefa vencida.</p>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

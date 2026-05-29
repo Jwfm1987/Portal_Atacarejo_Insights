@@ -1,0 +1,129 @@
+{% extends 'base.html' %}
+{% block title %}Usuários e acessos · Atacarejo Insights{% endblock %}
+{% block content %}
+<header class="page-header"><div><p class="eyebrow">Governança de acessos</p><h1>Usuários, perfis e permissões</h1><p>Organize perfis internos da Atacarejo Insights e perfis dos clientes, preparando o fluxo para analistas responsáveis por projetos, áreas e empresas específicas.</p></div></header>
+
+<section class="grid-2">
+  <div class="panel">
+    <div class="panel-title"><h2>Novo usuário</h2><small>Escolha um perfil modelo para preencher o papel de acesso e o escopo operacional.</small></div>
+    <form method="post" class="form-stack">
+      <label>Nome<input name="name" required></label>
+      <label>E-mail<input name="email" type="email" required></label>
+      <label>Senha inicial<input name="password" type="password" placeholder="Padrão: 123456"></label>
+      <label>Perfil modelo
+        <select name="profile_model" required>
+          <optgroup label="Perfis internos Atacarejo Insights">
+            {% for key, p in internal_profile_templates.items() %}<option value="{{ key }}">{{ p.label }}</option>{% endfor %}
+          </optgroup>
+          <optgroup label="Perfis do cliente">
+            {% for key, p in client_profile_templates.items() %}<option value="{{ key }}">{{ p.label }}</option>{% endfor %}
+          </optgroup>
+        </select>
+      </label>
+      <label>Papel técnico
+        <select name="role" required>
+          <option value="admin">Administrador</option>
+          <option value="consultant">Consultor interno</option>
+          <option value="client_admin">Cliente administrador</option>
+          <option value="client_collaborator">Cliente colaborador</option>
+          <option value="client_viewer">Cliente visualizador</option>
+        </select>
+      </label>
+      <label>Área/função principal<input name="department_area" placeholder="Ex.: Supply Chain, Compras, Logística, Diretoria..."></label>
+      <label>Escopo de acesso
+        <select name="access_scope">
+          {% for key, label in access_levels.items() %}<option value="{{ key }}">{{ label }}</option>{% endfor %}
+        </select>
+      </label>
+      <label>Empresa do cliente
+        <select name="company_id">
+          <option value="">Sem vínculo / usuário interno</option>
+          {% for c in companies %}<option value="{{ c.id }}">{{ c.name }}</option>{% endfor %}
+        </select>
+      </label>
+      <label>Projetos atribuídos
+        <select name="project_ids" multiple size="5">
+          {% for p in projects %}<option value="{{ p.id }}">{{ p.company_name }} · {{ p.name }}</option>{% endfor %}
+        </select>
+        <small class="muted">Use Ctrl para selecionar mais de um projeto.</small>
+      </label>
+      <label>Observações de permissão<textarea name="permission_notes" rows="3" placeholder="Ex.: acesso temporário, escopo por área, restrições específicas..."></textarea></label>
+      <button class="btn-primary" type="submit">Criar usuário</button>
+    </form>
+  </div>
+
+  <div class="panel">
+    <div class="panel-title"><h2>Perfis modelo</h2><small>Referência rápida de governança.</small></div>
+    <div class="permission-grid">
+      <div>
+        <h3>Internos</h3>
+        {% for key, p in internal_profile_templates.items() %}
+        <article class="permission-card"><strong>{{ p.label }}</strong><span>{{ role_labels.get(p.role, p.role) }}</span><p>{{ p.scope }}</p></article>
+        {% endfor %}
+      </div>
+      <div>
+        <h3>Clientes</h3>
+        {% for key, p in client_profile_templates.items() %}
+        <article class="permission-card"><strong>{{ p.label }}</strong><span>{{ role_labels.get(p.role, p.role) }}</span><p>{{ p.scope }}</p></article>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="panel">
+  <div class="panel-title"><h2>Usuários cadastrados</h2><small>Edite perfil, escopo, vínculo com cliente e projetos atribuídos.</small></div>
+  <div class="user-admin-list">
+    {% for u in users %}
+      <article class="user-admin-card">
+        <div class="user-admin-head">
+          <div><strong>{{ u.name }}</strong><small>{{ u.email }} · {{ u.company_name or 'Atacarejo Insights' }}</small></div>
+          <div><span class="status-pill">{{ profile_label(u.profile_model) }}</span><span class="status-pill">{{ role_labels.get(u.role, u.role) }}</span></div>
+        </div>
+        <p class="muted">Área/função: {{ u.department_area or '-' }} · Escopo: {{ access_levels.get(u.access_scope, u.access_scope or '-') }} · Status: {{ 'Ativo' if u.active else 'Inativo' }}</p>
+        {% if u.assigned_projects %}<p class="muted"><strong>Projetos atribuídos:</strong> {{ u.assigned_projects }}</p>{% endif %}
+        <form method="post" action="{{ url_for('user_update', user_id=u.id) }}" class="form-grid compact user-edit-form">
+          <label>Nome<input name="name" value="{{ u.name }}" required></label>
+          <label>Perfil modelo
+            <select name="profile_model">
+              <optgroup label="Perfis internos">
+                {% for key, p in internal_profile_templates.items() %}<option value="{{ key }}" {% if u.profile_model == key %}selected{% endif %}>{{ p.label }}</option>{% endfor %}
+              </optgroup>
+              <optgroup label="Perfis do cliente">
+                {% for key, p in client_profile_templates.items() %}<option value="{{ key }}" {% if u.profile_model == key %}selected{% endif %}>{{ p.label }}</option>{% endfor %}
+              </optgroup>
+            </select>
+          </label>
+          <label>Papel técnico
+            <select name="role">
+              {% for role_key, role_name in role_labels.items() %}<option value="{{ role_key }}" {% if u.role == role_key %}selected{% endif %}>{{ role_name }}</option>{% endfor %}
+            </select>
+          </label>
+          <label>Área/função<input name="department_area" value="{{ u.department_area or '' }}"></label>
+          <label>Escopo
+            <select name="access_scope">
+              {% for key, label in access_levels.items() %}<option value="{{ key }}" {% if u.access_scope == key %}selected{% endif %}>{{ label }}</option>{% endfor %}
+            </select>
+          </label>
+          <label>Empresa
+            <select name="company_id">
+              <option value="">Sem vínculo / interno</option>
+              {% for c in companies %}<option value="{{ c.id }}" {% if u.company_id == c.id %}selected{% endif %}>{{ c.name }}</option>{% endfor %}
+            </select>
+          </label>
+          <label>Status
+            <select name="active"><option value="1" {% if u.active %}selected{% endif %}>Ativo</option><option value="0" {% if not u.active %}selected{% endif %}>Inativo</option></select>
+          </label>
+          <label>Projetos atribuídos
+            <select name="project_ids" multiple size="4">
+              {% for p in projects %}<option value="{{ p.id }}">{{ p.company_name }} · {{ p.name }}</option>{% endfor %}
+            </select>
+          </label>
+          <label class="full">Observações<textarea name="permission_notes" rows="2">{{ u.permission_notes or '' }}</textarea></label>
+          <div class="form-actions"><button class="btn-outline" type="submit">Salvar ajustes</button></div>
+        </form>
+      </article>
+    {% else %}<p class="muted">Nenhum usuário cadastrado.</p>{% endfor %}
+  </div>
+</section>
+{% endblock %}

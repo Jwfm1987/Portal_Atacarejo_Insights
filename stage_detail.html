@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+{% block title %}{{ stage.title }} · Jornada do projeto{% endblock %}
+{% block content %}
+<header class="page-header">
+  <div>
+    <p class="eyebrow">{{ stage.company_name }} · {{ stage.project_name }}</p>
+    <h1>{{ stage.title }}</h1>
+    <p>Informações específicas da etapa selecionada na jornada do projeto.</p>
+  </div>
+  <a class="btn-outline" href="{{ url_for('project_detail', project_id=stage.project_id) }}">Voltar ao projeto</a>
+</header>
+
+<section class="panel">
+  <div class="panel-title">
+    <div>
+      <h2>Jornada do projeto</h2>
+      <p class="muted">Navegação horizontal. Clique em qualquer etapa para abrir os respectivos detalhes.</p>
+    </div>
+  </div>
+  <div class="journey-horizontal" aria-label="Jornada horizontal do projeto">
+    {% for s in stages %}
+      <a class="journey-step {{ 'current' if s.id == stage.id else 'done' if s.status == 'Concluída' else 'active' if s.status == 'Em andamento' else 'pending' }}"
+         href="{{ url_for('stage_detail', stage_id=s.id) }}"
+         title="{{ s.status }}">
+        <span class="step-number">{{ s.sort_order }}</span>
+        <strong>{{ s.title }}</strong>
+      </a>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="grid-2">
+  <article class="panel stage-focus-card">
+    <div class="panel-title">
+      <div>
+        <h2>Detalhes da etapa</h2>
+        <p class="muted">Resumo operacional da fase atual/selecionada.</p>
+      </div>
+      <span class="status-pill {{ 'done' if stage.status == 'Concluída' else '' }}">{{ stage.status }}</span>
+    </div>
+    <div class="stage-detail-grid">
+      <div><span>Projeto</span><strong>{{ stage.project_name }}</strong></div>
+      <div><span>Ordem</span><strong>{{ stage.sort_order }}</strong></div>
+      <div><span>Início</span><strong>{{ stage.start_date or 'Não definido' }}</strong></div>
+      <div><span>Término</span><strong>{{ stage.end_date or 'Não definido' }}</strong></div>
+      <div><span>Progresso geral</span><strong>{{ stage.project_progress }}%</strong></div>
+      <div><span>Status do projeto</span><strong>{{ stage.project_status }}</strong></div>
+    </div>
+    <div class="stage-description-box">
+      <h3>Descrição / informações da etapa</h3>
+      <p>{{ stage.description or 'Nenhuma descrição cadastrada para esta etapa. O administrador pode preencher orientações, entregas esperadas, critérios de conclusão e observações no cadastro da jornada.' }}</p>
+    </div>
+  </article>
+
+  <article class="panel">
+    <div class="panel-title"><h2>Objetivo do projeto</h2></div>
+    <p class="readable-text">{{ stage.project_objective or 'Objetivo do projeto ainda não informado.' }}</p>
+    <div class="progress big"><span style="width: {{ stage.project_progress }}%"></span></div>
+    <p class="muted">Fase textual atual do projeto: <strong>{{ stage.project_phase }}</strong></p>
+  </article>
+</section>
+
+<section class="grid-2">
+  <div class="panel">
+    <div class="panel-title">
+      <div>
+        <h2>Plano de ação relacionado</h2>
+        <p class="muted">Nesta versão, as tarefas ainda são vinculadas ao projeto. Elas aparecem aqui para contextualizar a etapa selecionada.</p>
+      </div>
+    </div>
+    <div class="task-list">
+      {% for t in tasks %}
+      <article class="task-item">
+        <div>
+          <strong>{{ t.title }}</strong>
+          <small>{{ t.description or '' }}</small>
+          <small>Responsável: {{ t.owner or '-' }} · Prazo: {{ t.due_date or '-' }} · Prioridade: {{ t.priority }}</small>
+        </div>
+        <span class="status-pill {{ 'done' if t.status == 'Concluída' else '' }}">{{ t.status }}</span>
+      </article>
+      {% else %}
+        <p class="muted">Nenhuma tarefa cadastrada para este projeto.</p>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-title">
+      <div>
+        <h2>Registros e observações</h2>
+        <p class="muted">Histórico visível para acompanhamento do projeto.</p>
+      </div>
+    </div>
+    <div class="notes-list">
+      {% for n in notes %}
+        <article class="note-card">
+          <strong>{{ n.author_name or 'Atacarejo Insights' }}</strong>
+          <small>{{ n.created_at }} · Visibilidade: {{ n.visibility }}</small>
+          <p>{{ n.note }}</p>
+        </article>
+      {% else %}
+        <p class="muted">Nenhuma observação registrada ainda.</p>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}

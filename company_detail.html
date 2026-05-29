@@ -1,0 +1,153 @@
+{% extends 'base.html' %}
+{% block title %}{{ company.name }} · Atacarejo Insights{% endblock %}
+{% block content %}
+<header class="page-header">
+  <div>
+    <p class="eyebrow">Cliente</p>
+    <h1>{{ company.name }}</h1>
+    <p>{{ company.segment or 'Segmento não informado' }} · {{ company.city or '-' }}/{{ company.state or '-' }} · {{ company.stores or 0 }} loja(s)</p>
+  </div>
+  <div class="header-actions">
+    <a class="btn-outline" href="{{ url_for('company_report', company_id=company.id) }}">Relatório</a>
+    <a class="btn-primary" href="{{ url_for('diagnostic', company_id=company.id) }}">Diagnóstico</a>
+  </div>
+</header>
+
+<section class="metric-grid small">
+  <article class="metric-card"><span>Status</span><strong>{{ company.status }}</strong></article>
+  <article class="metric-card"><span>Faturamento mensal estimado</span><strong>R$ {{ '%.2f'|format(company.monthly_revenue or 0) }}</strong></article>
+  <article class="metric-card"><span>Contato</span><strong>{{ company.contact_name or '-' }}</strong><small>{{ company.contact_email or '' }}</small></article>
+</section>
+
+{% if pending_changes and g.user.role in ['admin', 'consultant'] %}
+<section class="panel approval-summary">
+  <div class="panel-title"><h2>Alterações pendentes deste cliente</h2><a href="{{ url_for('admin_approvals') }}">Revisar aprovações</a></div>
+  <div class="cards-row">
+    {% for cr in pending_changes %}
+      <article class="mini-card"><small>{{ cr.created_at }} · {{ cr.user_name or '-' }}</small><strong>{{ cr.field_name }}</strong><span class="status-pill warning">Pendente</span></article>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
+<section class="grid-2">
+  <div class="panel">
+    <div class="panel-title">
+      <h2>Projetos</h2>
+      {% if g.user.role in ['admin', 'consultant'] %}<a href="{{ url_for('project_new', company_id=company.id) }}">Novo projeto</a>{% endif %}
+    </div>
+    {% for p in projects %}
+      <article class="project-card">
+        <div><strong>{{ p.name }}</strong><small>{{ p.phase }} · {{ p.status }}</small></div>
+        <div class="progress"><span style="width: {{ p.progress }}%"></span></div>
+        <a class="link" href="{{ url_for('project_detail', project_id=p.id) }}">Abrir</a>
+      </article>
+    {% else %}<p class="muted">Nenhum projeto cadastrado.</p>{% endfor %}
+  </div>
+
+  <div class="panel">
+    <div class="panel-title"><h2>Matriz de maturidade</h2></div>
+    {% for m in maturity %}
+      <div class="maturity-row">
+        <span>{{ m.name }}</span>
+        <div class="scorebar"><i style="width: {{ (m.score or 0) * 20 }}%"></i></div>
+        <strong>{{ m.score or 0 }}/5</strong>
+      </div>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="panel">
+  <div class="panel-title">
+    <div>
+      <h2>Áreas mapeadas para diagnóstico e imersão</h2>
+      <p class="muted">Levantamento base de áreas normalmente encontradas em empresas de supermercado, atacarejo, distribuição e varejo alimentar. Você pode adicionar novas áreas quando o cliente tiver uma estrutura específica.</p>
+    </div>
+  </div>
+  <div class="tag-cloud">
+    {% for area in area_options %}
+      <span class="area-tag" title="{{ area.description or '' }}">{{ area.name }}</span>
+    {% endfor %}
+  </div>
+  {% if g.user.role in ['admin', 'consultant'] %}
+  <details class="admin-create">
+    <summary>Adicionar área não mapeada</summary>
+    <form method="post" action="{{ url_for('area_new') }}" class="form-grid compact">
+      <input type="hidden" name="company_id" value="{{ company.id }}">
+      <label>Nome da área<input name="name" placeholder="Ex.: Auditoria interna, Patrimônio, Segurança patrimonial..." required></label>
+      <label class="full">Descrição da área<textarea name="description" rows="3" placeholder="Explique o escopo desta área dentro do cliente."></textarea></label>
+      <div class="form-actions"><button class="btn-outline" type="submit">Adicionar área</button></div>
+    </form>
+  </details>
+  {% endif %}
+</section>
+
+<section class="panel">
+  <div class="panel-title">
+    <div>
+      <h2>Imersões e questionários por área</h2>
+      <p class="muted">Controle dos questionários aplicados aos gestores do cliente e das respostas registradas por usuário.</p>
+    </div>
+  </div>
+  <div class="questionnaire-grid">
+    {% for q in questionnaires %}
+      <article class="questionnaire-card">
+        <div class="q-head"><span class="q-area">{{ q.context_area or 'Diagnóstico' }}</span><span class="status-pill">{{ q.status }}</span></div>
+        <h3>{{ q.title }}</h3>
+        <p>{{ q.description or '' }}</p>
+        <div class="q-meta"><span>Perfil: <strong>{{ q.target_role or '-' }}</strong></span><span>Respondentes: <strong>{{ q.respondent_count or 0 }}</strong></span><span>Respostas: <strong>{{ q.answer_count or 0 }}</strong></span></div>
+        <a class="btn-outline full-btn" href="{{ url_for('questionnaire_detail', questionnaire_id=q.id) }}">Abrir questionário</a>
+      </article>
+    {% else %}<p class="muted">Nenhum questionário cadastrado.</p>{% endfor %}
+  </div>
+  {% if g.user.role in ['admin', 'consultant'] %}
+  <details class="admin-create">
+    <summary>Criar novo questionário de imersão</summary>
+    <form method="post" action="{{ url_for('questionnaire_new', company_id=company.id) }}" class="form-grid compact">
+      <label>Título<input name="title" placeholder="Ex.: Imersão Financeira" required></label>
+      <label>Área mapeada
+        <select name="context_area">
+          <option value="">Selecionar área previamente mapeada</option>
+          {% for area in area_options %}
+          <option value="{{ area.name }}">{{ area.name }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label>Nova área, se não estiver na lista<input name="custom_area" placeholder="Ex.: Auditoria interna, Patrimônio, Segurança..."></label>
+      <label>Perfil-alvo<input name="target_role" placeholder="Gerente financeiro, diretor, comprador..."></label>
+      <label>Status<select name="status"><option>Aberto</option><option selected>Em coleta</option><option>Em análise</option><option>Fechado</option></select></label>
+      <label>Visível ao cliente<select name="visible_to_client"><option value="1" selected>Sim</option><option value="0">Não</option></select></label>
+      <label class="full">Descrição<textarea name="description" rows="3"></textarea></label>
+      <label class="full">Perguntas, uma por linha<textarea name="questions" rows="6" placeholder="Se você deixar em branco, o sistema usará um roteiro-base da área selecionada.&#10;Ex.: Quais são os principais gargalos da área?&#10;Quais indicadores são acompanhados?&#10;Quais oportunidades devem ser priorizadas?"></textarea></label>
+      <p class="full muted">Dica: ao selecionar uma área mapeada e deixar as perguntas em branco, o portal cria automaticamente perguntas-base para a imersão daquela área.</p>
+      <div class="form-actions"><button class="btn-primary" type="submit">Criar questionário</button></div>
+    </form>
+  </details>
+  {% endif %}
+</section>
+
+<section class="grid-2">
+  <div class="panel">
+    <div class="panel-title"><h2>Dados e documentos necessários</h2></div>
+    {% for f in files %}
+      <div class="file-row"><div><strong>{{ f.title }}</strong><small>{{ f.file_type or '-' }} · {{ f.notes or '' }}</small></div><span class="status-pill">{{ f.status }}</span></div>
+    {% else %}<p class="muted">Sem documentos registrados.</p>{% endfor %}
+    {% if g.user.role != 'client_viewer' %}
+    <form method="post" action="{{ url_for('file_new', company_id=company.id) }}" class="inline-form">
+      <input name="title" placeholder="Novo dado/documento" required>
+      <input name="file_type" placeholder="Tipo">
+      <input name="due_date" type="date">
+      <select name="status"><option>Solicitado</option><option>Recebido</option><option>Em análise</option></select>
+      <button class="btn-outline" type="submit">Adicionar</button>
+    </form>
+    {% endif %}
+  </div>
+
+  <div class="panel">
+    <div class="panel-title"><h2>Usuários do cliente</h2></div>
+    {% for u in users %}
+      <div class="user-row"><div><strong>{{ u.name }}</strong><small>{{ u.email }}</small></div><span class="status-pill">{{ role_labels.get(u.role, u.role) }}</span></div>
+    {% else %}<p class="muted">Sem usuários vinculados.</p>{% endfor %}
+  </div>
+</section>
+{% endblock %}

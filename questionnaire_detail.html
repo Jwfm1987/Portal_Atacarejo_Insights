@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+{% block title %}{{ questionnaire.title }} · Imersão{% endblock %}
+{% block content %}
+<header class="page-header">
+  <div>
+    <p class="eyebrow">Questionário de imersão · {{ questionnaire.company_name }}</p>
+    <h1>{{ questionnaire.title }}</h1>
+    <p>{{ questionnaire.description or 'Questionário aplicado para coleta estruturada de percepção dos gestores.' }}</p>
+  </div>
+  <a class="btn-outline" href="{{ url_for('company_detail', company_id=questionnaire.company_id) }}">Voltar ao cliente</a>
+</header>
+
+<section class="metric-grid small">
+  <article class="metric-card"><span>Área/contexto</span><strong>{{ questionnaire.context_area or '-' }}</strong></article>
+  <article class="metric-card"><span>Perfil-alvo</span><strong>{{ questionnaire.target_role or '-' }}</strong></article>
+  <article class="metric-card accent"><span>Status</span><strong>{{ questionnaire.status }}</strong></article>
+</section>
+
+{% if g.user.role in ['admin', 'consultant'] %}
+<section class="panel collapsible">
+  <details>
+    <summary>Controle administrativo do questionário</summary>
+    <form method="post" action="{{ url_for('questionnaire_status', questionnaire_id=questionnaire.id) }}" class="form-grid compact">
+      <label>Status
+        <select name="status">
+          {% for s in ['Aberto', 'Em coleta', 'Em análise', 'Fechado'] %}
+          <option value="{{ s }}" {{ 'selected' if questionnaire.status == s else '' }}>{{ s }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label>Visível ao cliente
+        <select name="visible_to_client">
+          <option value="1" {{ 'selected' if questionnaire.visible_to_client == 1 else '' }}>Sim</option>
+          <option value="0" {{ 'selected' if questionnaire.visible_to_client != 1 else '' }}>Não</option>
+        </select>
+      </label>
+      <div class="form-actions"><button class="btn-primary" type="submit">Atualizar</button></div>
+    </form>
+  </details>
+</section>
+{% endif %}
+
+<section class="grid-2">
+  <div class="panel">
+    <div class="panel-title">
+      <div>
+        <h2>Respondentes</h2>
+        <p class="muted">Usuários que já contribuíram com este questionário.</p>
+      </div>
+    </div>
+    {% for r in respondents %}
+      <div class="user-row">
+        <div><strong>{{ r.name }}</strong><small>{{ r.email }} · {{ role_labels.get(r.role, r.role) }} · {{ r.answers_count }} resposta(s)</small></div>
+        <span class="status-pill">{{ r.last_answer or '-' }}</span>
+      </div>
+    {% else %}
+      <p class="muted">Nenhum usuário respondeu ainda.</p>
+    {% endfor %}
+  </div>
+
+  <div class="panel">
+    <div class="panel-title"><h2>Minha contribuição</h2></div><p class="muted">Novas respostas entram diretamente. Alterações em respostas já gravadas serão enviadas para aprovação da Atacarejo Insights.</p>
+    {% if g.user.role != 'client_viewer' %}
+    <form method="post" class="form-stack questionnaire-form">
+      {% for question in questions %}
+        {% set mine = my_answers.get(question.id) %}
+        <label>{{ loop.index }}. {{ question.question_text }}
+          <textarea name="answer_{{ question.id }}" rows="4" placeholder="Registre a visão da sua área, evidências e exemplos práticos.">{{ mine.answer_text if mine else '' }}</textarea>
+        </label>
+      {% endfor %}
+      <button class="btn-primary" type="submit">Salvar minhas respostas</button>
+    </form>
+    {% else %}
+      <p class="muted">Seu perfil permite apenas visualização.</p>
+    {% endif %}
+  </div>
+</section>
+
+
+{% if pending_changes and g.user.role in ['admin', 'consultant'] %}
+<section class="panel approval-summary">
+  <div class="panel-title"><h2>Alterações de respostas aguardando aprovação</h2><a href="{{ url_for('admin_approvals') }}">Abrir fila</a></div>
+  <div class="cards-row">
+    {% for cr in pending_changes %}
+    <article class="mini-card">
+      <small>{{ cr.created_at }} · {{ cr.user_name or 'Usuário' }}</small>
+      <strong>{{ cr.field_name }}</strong>
+      <span class="status-pill warning">Pendente</span>
+    </article>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
+<section class="panel">
+  <div class="panel-title">
+    <div>
+      <h2>Respostas registradas por usuário</h2>
+      <p class="muted">Esta visão permite comparar percepções entre Operações, Compras, Vendas, Marketing, Diretoria e demais áreas, mantendo os dados restritos ao cliente.</p>
+    </div>
+  </div>
+  <div class="responses-list">
+    {% for a in answers %}
+      <article class="response-card">
+        <div class="response-head">
+          <div><strong>{{ a.user_name }}</strong><small>{{ a.user_email }} · {{ role_labels.get(a.user_role, a.user_role) }} · {{ a.answered_at }}</small></div>
+          <span class="q-area">Pergunta {{ a.sort_order }}</span>
+        </div>
+        <p class="question-text">{{ a.question_text }}</p>
+        <p>{{ a.answer_text or 'Sem resposta registrada.' }}</p>
+      </article>
+    {% else %}
+      <p class="muted">Ainda não existem respostas para este questionário.</p>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

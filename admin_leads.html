@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% block title %}Leads do site · Atacarejo Insights{% endblock %}
+{% block content %}
+<header class="page-header">
+  <div>
+    <p class="eyebrow">Comercial</p>
+    <h1>Leads captados pelo site</h1>
+    <p>Cadastros de primeiro contato vindos da landing page, redes sociais, flyers e divulgações.</p>
+  </div>
+</header>
+<section class="panel">
+  <div class="panel-title">
+    <h2>Solicitações de contato</h2>
+    <small>Dados completos serão adicionados somente após reunião, apresentação do projeto e formalização contratual.</small>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Empresa</th><th>Solicitante</th><th>Contato</th><th>Status</th><th>Ações</th></tr></thead>
+      <tbody>
+        {% for l in leads %}
+        <tr>
+          <td><strong>{{ l.company_name }}</strong><br><small>Matriz: {{ l.state or '-' }}</small></td>
+          <td>{{ l.contact_name }}<br><small>Origem: {{ l.source or 'Site' }}</small></td>
+          <td><small>{{ l.contact_phone or '-' }}</small><br><small>{{ l.contact_email }}</small></td>
+          <td><span class="status-pill">{{ l.status }}</span><br><small>{{ l.created_at }}</small></td>
+          <td>
+            <form method="post" class="lead-actions">
+              <input type="hidden" name="lead_id" value="{{ l.id }}">
+              <select name="status"><option>Novo lead</option><option>Contato realizado</option><option>Reunião marcada</option><option>Projeto apresentado</option><option>Em negociação</option><option>Sem aderência</option><option>Convertido em cliente</option></select>
+              <button class="btn-outline" type="submit">Atualizar</button>
+            </form>
+            {% if l.status != 'Convertido em cliente' %}
+            <form method="post" action="{{ url_for('admin_lead_convert', lead_id=l.id) }}" class="lead-actions">
+              <input name="password" placeholder="Senha inicial" value="cliente123">
+              <button class="btn-primary" type="submit">Converter em cliente</button>
+            </form>
+            {% endif %}
+          </td>
+        </tr>
+        {% else %}<tr><td colspan="5">Nenhum lead cadastrado pelo site.</td></tr>{% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

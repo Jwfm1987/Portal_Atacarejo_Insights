@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% block title %}Aprovações · Atacarejo Insights{% endblock %}
+{% block content %}
+<header class="page-header">
+  <div>
+    <p class="eyebrow">Governança de dados</p>
+    <h1>Aprovações pendentes</h1>
+    <p>Alterações cadastrais, edições de respostas e informações enviadas por usuários do cliente entram aqui antes de alterar oficialmente o ambiente do projeto.</p>
+  </div>
+</header>
+
+<section class="panel">
+  <div class="panel-title"><h2>Fila de aprovação</h2></div>
+  <div class="approval-list">
+    {% for r in pending %}
+    <article class="approval-card">
+      <div class="approval-head">
+        <div><strong>{{ r.company_name }}</strong><small>{{ r.created_at }} · {{ r.user_name or 'Usuário' }} · {{ r.user_email or '' }}</small></div>
+        <span class="status-pill warning">{{ r.entity_type }}</span>
+      </div>
+      <p><strong>Campo:</strong> {{ r.field_name }}</p>
+      <div class="approval-values">
+        <div><span>Valor atual</span><p>{{ r.old_value or '—' }}</p></div>
+        <div><span>Novo valor solicitado</span><p>{{ r.new_value or '—' }}</p></div>
+      </div>
+      <form method="post" action="{{ url_for('admin_approval_action', request_id=r.id, action='approve') }}" class="approval-actions">
+        <input name="admin_note" placeholder="Observação opcional">
+        <button class="btn-primary" type="submit">Aprovar</button>
+      </form>
+      <form method="post" action="{{ url_for('admin_approval_action', request_id=r.id, action='reject') }}" class="approval-actions">
+        <input name="admin_note" placeholder="Motivo da rejeição">
+        <button class="btn-outline" type="submit">Rejeitar</button>
+      </form>
+    </article>
+    {% else %}<p class="muted">Não há aprovações pendentes.</p>{% endfor %}
+  </div>
+</section>
+
+<section class="panel">
+  <div class="panel-title"><h2>Últimas revisões</h2></div>
+  <div class="table-wrap"><table><thead><tr><th>Cliente</th><th>Campo</th><th>Status</th><th>Revisado em</th><th>Observação</th></tr></thead><tbody>
+    {% for r in reviewed %}<tr><td>{{ r.company_name }}</td><td>{{ r.field_name }}</td><td><span class="status-pill {{ 'done' if r.status == 'Aprovada' else '' }}">{{ r.status }}</span></td><td>{{ r.reviewed_at }}</td><td>{{ r.admin_note or '-' }}</td></tr>{% else %}<tr><td colspan="5">Sem revisões registradas.</td></tr>{% endfor %}
+  </tbody></table></div>
+</section>
+{% endblock %}

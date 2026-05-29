@@ -1,0 +1,196 @@
+{% extends 'base.html' %}
+{% block title %}{{ project.name }} · Atacarejo Insights{% endblock %}
+{% block content %}
+<header class="page-header">
+  <div>
+    <p class="eyebrow">{{ project.company_name }}</p>
+    <h1>{{ project.name }}</h1>
+    <p>{{ project.objective or 'Sem objetivo informado.' }}</p>
+  </div>
+  <a class="btn-outline" href="{{ url_for('company_detail', company_id=project.company_id) }}">Voltar ao cliente</a>
+</header>
+
+<section class="metric-grid small">
+  <article class="metric-card"><span>Fase</span><strong>{{ project.phase }}</strong></article>
+  <article class="metric-card"><span>Status</span><strong>{{ project.status }}</strong></article>
+  <article class="metric-card accent"><span>Progresso</span><strong>{{ project.progress }}%</strong><div class="progress"><span style="width: {{ project.progress }}%"></span></div></article>
+</section>
+
+<section class="panel">
+  <div class="panel-title">
+    <div>
+      <h2>Jornada do projeto visível ao cliente</h2>
+      <p class="muted">Controle em qual etapa o projeto está, o que já foi concluído e quais são os próximos passos até o encerramento.</p>
+    </div>
+  </div>
+  <div class="journey-horizontal admin-journey" aria-label="Jornada horizontal do projeto">
+    {% for s in stages %}
+      <a class="journey-step {{ 'done' if s.status == 'Concluída' else 'active' if s.status == 'Em andamento' else 'pending' }}"
+         href="{{ url_for('stage_detail', stage_id=s.id) }}"
+         title="{{ s.status }}">
+        <span class="step-number">{{ s.sort_order }}</span>
+        <strong>{{ s.title }}</strong>
+      </a>
+    {% else %}
+      <p class="muted">Nenhuma etapa cadastrada ainda.</p>
+    {% endfor %}
+  </div>
+  <p class="journey-hint">Clique sobre uma etapa para acessar as informações específicas dela. O cliente verá a mesma jornada horizontal, respeitando as etapas marcadas como visíveis.</p>
+
+  {% if g.user.role in ['admin', 'consultant'] %}
+  <details class="admin-create stage-admin-editor">
+    <summary>Editar etapas da jornada</summary>
+    <div class="stage-editor-list">
+    {% for s in stages %}
+      <article class="timeline-content">
+        <form method="post" action="{{ url_for('stage_update', stage_id=s.id) }}" class="stage-edit-form">
+          <div class="stage-edit-grid">
+            <label>Ordem<input name="sort_order" type="number" value="{{ s.sort_order }}"></label>
+            <label>Título<input name="title" value="{{ s.title }}" required></label>
+            <label>Status<select name="status">{% for st in ['Pendente', 'Em andamento', 'Concluída'] %}<option value="{{ st }}" {{ 'selected' if s.status == st else '' }}>{{ st }}</option>{% endfor %}</select></label>
+            <label>Início<input name="start_date" type="date" value="{{ s.start_date or '' }}"></label>
+            <label>Término<input name="end_date" type="date" value="{{ s.end_date or '' }}"></label>
+            <label>Visível<select name="visible_to_client"><option value="1" {{ 'selected' if s.visible_to_client == 1 else '' }}>Sim</option><option value="0" {{ 'selected' if s.visible_to_client != 1 else '' }}>Não</option></select></label>
+            <label class="full">Descrição/informações da etapa<textarea name="description" rows="3">{{ s.description or '' }}</textarea></label>
+          </div>
+          <button class="btn-outline" type="submit">Salvar etapa</button>
+        </form>
+      </article>
+    {% endfor %}
+    </div>
+  </details>
+  {% endif %}
+  {% if g.user.role in ['admin', 'consultant'] %}
+  <details class="admin-create">
+    <summary>Adicionar nova etapa ao cronograma</summary>
+    <form method="post" action="{{ url_for('stage_new', project_id=project.id) }}" class="form-grid compact">
+      <label>Ordem<input name="sort_order" type="number" value="{{ (stages|length) + 1 }}"></label>
+      <label>Título<input name="title" required></label>
+      <label>Status<select name="status"><option>Pendente</option><option>Em andamento</option><option>Concluída</option></select></label>
+      <label>Início<input name="start_date" type="date"></label>
+      <label>Término<input name="end_date" type="date"></label>
+      <label>Visível ao cliente<select name="visible_to_client"><option value="1" selected>Sim</option><option value="0">Não</option></select></label>
+      <label class="full">Descrição<textarea name="description" rows="3"></textarea></label>
+      <div class="form-actions"><button class="btn-primary" type="submit">Adicionar etapa</button></div>
+    </form>
+  </details>
+  {% endif %}
+</section>
+
+{% if g.user.role in ['admin', 'consultant'] %}
+<section class="panel collapsible">
+  <details>
+    <summary>Editar dados do projeto</summary>
+    <form method="post" class="form-grid compact">
+      <label>Nome<input name="name" value="{{ project.name }}" required></label>
+      <label>Fase<input name="phase" value="{{ project.phase }}"></label>
+      <label>Progresso (%)<input name="progress" type="number" min="0" max="100" value="{{ project.progress }}"></label>
+      <label>Status<select name="status"><option {{ 'selected' if project.status == 'Em andamento' else '' }}>Em andamento</option><option {{ 'selected' if project.status == 'Pausado' else '' }}>Pausado</option><option {{ 'selected' if project.status == 'Finalizado' else '' }}>Finalizado</option></select></label>
+      <label>Início<input name="start_date" type="date" value="{{ project.start_date }}"></label>
+      <label>Término<input name="end_date" type="date" value="{{ project.end_date }}"></label>
+      <label class="full">Objetivo<textarea name="objective" rows="4">{{ project.objective or '' }}</textarea></label>
+      <div class="form-actions"><button class="btn-primary" type="submit">Salvar alterações</button></div>
+    </form>
+  </details>
+</section>
+{% endif %}
+
+<section class="grid-2">
+  <div class="panel">
+    <div class="panel-title">
+      <div>
+        <h2>Plano de ação e tarefas</h2>
+        <p class="muted">Controle com responsável, equipe, início, prazo, conclusão e classificação automática de atrasos.</p>
+      </div>
+    </div>
+    <div class="task-list task-list-detailed">
+      {% for t in tasks %}
+      <article class="task-item task-detailed">
+        <div>
+          <strong>{{ t.title }}</strong>
+          <small>{{ t.description or '' }}</small>
+          <small>Responsável: {{ t.owner or '-' }} · Equipe: {{ t.responsible_team or '-' }} · Prioridade: {{ t.priority }}</small>
+          <small>Início: {{ t.start_date or '-' }} · Prazo atual: {{ t.due_date or '-' }} · Prazo original: {{ t.original_due_date or '-' }} · Conclusão: {{ t.completed_at or '-' }}</small>
+          {% if t.extension_reason %}<small>Motivo/observação: {{ t.extension_reason }}</small>{% endif %}
+        </div>
+        <div class="task-side">
+          <span class="status-pill {{ task_condition_class(t) }}">{{ task_condition(t) }}</span>
+          {% if g.user.role != 'client_viewer' %}
+          <form method="post" action="{{ url_for('task_status', task_id=t.id) }}" class="task-status-form">
+            <select name="status">
+              {% for s in ['Pendente', 'Em andamento', 'Prorrogada', 'Cancelada', 'Concluída'] %}
+              <option value="{{ s }}" {{ 'selected' if t.status == s else '' }}>{{ s }}</option>
+              {% endfor %}
+            </select>
+            <input name="due_date" type="date" value="{{ t.due_date or '' }}" title="Novo prazo, se houver prorrogação">
+            <input name="extension_reason" placeholder="Motivo/observação">
+            <button class="btn-outline" type="submit">Atualizar</button>
+          </form>
+          {% endif %}
+          {% if g.user.role in ['admin', 'consultant'] %}
+          <details class="task-edit-details">
+            <summary>Editar tarefa</summary>
+            <form method="post" action="{{ url_for('task_update', task_id=t.id) }}" class="form-stack compact-stack">
+              <label>Título<input name="title" value="{{ t.title }}" required></label>
+              <label>Descrição<textarea name="description" rows="2">{{ t.description or '' }}</textarea></label>
+              <label>Responsável nominal<input name="owner" value="{{ t.owner or '' }}"></label>
+              <label>Equipe responsável<select name="responsible_team"><option {{ 'selected' if t.responsible_team == 'Atacarejo Insights' else '' }}>Atacarejo Insights</option><option {{ 'selected' if t.responsible_team == 'Cliente' else '' }}>Cliente</option><option {{ 'selected' if t.responsible_team == 'Compartilhada' else '' }}>Compartilhada</option></select></label>
+              <label>Início<input name="start_date" type="date" value="{{ t.start_date or '' }}"></label>
+              <label>Prazo<input name="due_date" type="date" value="{{ t.due_date or '' }}"></label>
+              <label>Conclusão<input name="completed_at" type="date" value="{{ t.completed_at or '' }}"></label>
+              <label>Status<select name="status">{% for s in ['Pendente', 'Em andamento', 'Prorrogada', 'Cancelada', 'Concluída'] %}<option value="{{ s }}" {{ 'selected' if t.status == s else '' }}>{{ s }}</option>{% endfor %}</select></label>
+              <label>Prioridade<select name="priority"><option {{ 'selected' if t.priority == 'Baixa' else '' }}>Baixa</option><option {{ 'selected' if t.priority == 'Média' else '' }}>Média</option><option {{ 'selected' if t.priority == 'Alta' else '' }}>Alta</option></select></label>
+              <label>Motivo/observação<textarea name="extension_reason" rows="2">{{ t.extension_reason or '' }}</textarea></label>
+              <button class="btn-outline" type="submit">Salvar tarefa</button>
+            </form>
+          </details>
+          {% endif %}
+        </div>
+      </article>
+      {% else %}<p class="muted">Nenhuma tarefa cadastrada.</p>{% endfor %}
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-title"><h2>Adicionar tarefa</h2></div>
+    {% if g.user.role != 'client_viewer' %}
+    <form method="post" action="{{ url_for('task_new', project_id=project.id) }}" class="form-stack">
+      <label>Título<input name="title" required></label>
+      <label>Descrição<textarea name="description" rows="3"></textarea></label>
+      <label>Responsável nominal<input name="owner" placeholder="Nome da pessoa responsável"></label>
+      <label>Equipe responsável<select name="responsible_team"><option>Atacarejo Insights</option><option>Cliente</option><option>Compartilhada</option></select></label>
+      <label>Data de início<input name="start_date" type="date"></label>
+      <label>Prazo<input name="due_date" type="date"></label>
+      <label>Status<select name="status"><option>Pendente</option><option>Em andamento</option><option>Prorrogada</option><option>Cancelada</option><option>Concluída</option></select></label>
+      <label>Conclusão, se já finalizada<input name="completed_at" type="date"></label>
+      <label>Prioridade<select name="priority"><option>Baixa</option><option selected>Média</option><option>Alta</option></select></label>
+      <label>Motivo/observação<textarea name="extension_reason" rows="2" placeholder="Use para prorrogação, cancelamento ou justificativa."></textarea></label>
+      <button class="btn-primary" type="submit">Adicionar tarefa</button>
+    </form>
+    {% else %}
+    <p class="muted">Seu perfil permite apenas visualização.</p>
+    {% endif %}
+  </div>
+</section>
+
+<section class="grid-2">
+  <div class="panel">
+    <div class="panel-title"><h2>Histórico e decisões</h2></div>
+    {% for n in notes %}
+      <div class="note"><strong>{{ n.author_name or 'Sistema' }}</strong><small>{{ n.created_at }} · {{ n.visibility }}</small><p>{{ n.note }}</p></div>
+    {% else %}<p class="muted">Sem comentários registrados.</p>{% endfor %}
+  </div>
+  <div class="panel">
+    <div class="panel-title"><h2>Novo comentário</h2></div>
+    {% if g.user.role != 'client_viewer' %}
+    <form method="post" action="{{ url_for('note_new', project_id=project.id) }}" class="form-stack">
+      <label>Comentário<textarea name="note" rows="5" required></textarea></label>
+      {% if g.user.role in ['admin', 'consultant'] %}
+      <label>Visibilidade<select name="visibility"><option>Cliente</option><option>Interna</option></select></label>
+      {% endif %}
+      <button class="btn-outline" type="submit">Registrar</button>
+    </form>
+    {% else %}<p class="muted">Seu perfil permite apenas visualização.</p>{% endif %}
+  </div>
+</section>
+{% endblock %}

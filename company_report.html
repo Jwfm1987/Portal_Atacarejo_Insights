@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% block title %}Relatório · {{ company.name }}{% endblock %}
+{% block content %}
+<header class="page-header print-header">
+  <div>
+    <p class="eyebrow">Relatório executivo</p>
+    <h1>{{ company.name }}</h1>
+    <p>Diagnóstico, projetos, plano de ação e evolução consolidada.</p>
+  </div>
+  <button class="btn-primary no-print" onclick="window.print()">Imprimir / Salvar PDF</button>
+</header>
+
+<section class="panel report-cover">
+  <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Atacarejo Insights">
+  <h2>Relatório de acompanhamento consultivo</h2>
+  <p>Cliente: <strong>{{ company.name }}</strong></p>
+  <p>Segmento: {{ company.segment or '-' }} · {{ company.city or '-' }}/{{ company.state or '-' }}</p>
+</section>
+
+<section class="grid-2">
+  <div class="panel">
+    <h2>Maturidade por área</h2>
+    {% for m in maturity %}
+      <div class="maturity-row"><span>{{ m.name }}</span><div class="scorebar"><i style="width: {{ (m.score or 0) * 20 }}%"></i></div><strong>{{ m.score or 0 }}/5</strong></div>
+      {% if m.comment %}<p class="muted smalltext">{{ m.comment }}</p>{% endif %}
+    {% endfor %}
+  </div>
+  <div class="panel">
+    <h2>Projetos</h2>
+    {% for p in projects %}
+      <article class="project-card"><div><strong>{{ p.name }}</strong><small>{{ p.phase }} · {{ p.status }}</small></div><div class="progress"><span style="width: {{ p.progress }}%"></span></div><span>{{ p.progress }}%</span></article>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="panel">
+  <h2>Plano de ação</h2>
+  <div class="table-wrap">
+    <table><thead><tr><th>Tarefa</th><th>Projeto</th><th>Responsável</th><th>Prazo</th><th>Status</th></tr></thead><tbody>
+      {% for t in tasks %}<tr><td>{{ t.title }}</td><td>{{ t.project_name }}</td><td>{{ t.owner or '-' }}</td><td>{{ t.due_date or '-' }}</td><td>{{ t.status }}</td></tr>{% endfor %}
+    </tbody></table>
+  </div>
+</section>
+{% endblock %}

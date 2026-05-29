@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% block title %}Alterações cadastrais · Atacarejo Insights{% endblock %}
+{% block content %}
+<header class="page-header">
+  <div>
+    <p class="eyebrow">Ambiente do cliente</p>
+    <h1>Solicitar alteração cadastral</h1>
+    <p>Por segurança e confidencialidade, alterações feitas por usuários do cliente entram em aprovação antes de atualizar oficialmente o cadastro.</p>
+  </div>
+</header>
+<section class="grid-2">
+  <div class="panel">
+    <div class="panel-title"><h2>Dados atuais</h2></div>
+    <form method="post" class="form-grid compact">
+      <label>Empresa<input name="name" value="{{ company.name }}"></label>
+      <label>CNPJ<input name="cnpj" value="{{ company.cnpj or '' }}"></label>
+      <label>Segmento<input name="segment" value="{{ company.segment or '' }}"></label>
+      <label>Número de lojas<input name="stores" type="number" value="{{ company.stores or 0 }}"></label>
+      <label>Cidade<input name="city" value="{{ company.city or '' }}"></label>
+      <label>UF<input name="state" value="{{ company.state or '' }}"></label>
+      <label>Faturamento mensal estimado<input name="monthly_revenue" type="number" step="0.01" value="{{ company.monthly_revenue or 0 }}"></label>
+      <label>Responsável principal<input name="contact_name" value="{{ company.contact_name or '' }}"></label>
+      <label class="full">E-mail principal<input name="contact_email" value="{{ company.contact_email or '' }}"></label>
+      <div class="form-actions"><button class="btn-primary" type="submit">Enviar alterações para aprovação</button></div>
+    </form>
+  </div>
+  <div class="panel">
+    <div class="panel-title"><h2>Histórico de solicitações</h2></div>
+    <div class="approval-list compact-list">
+      {% for p in pending %}
+      <article class="approval-card small-card">
+        <div class="approval-head"><strong>{{ p.field_name }}</strong><span class="status-pill {{ 'done' if p.status == 'Aprovada' else 'warning' if p.status == 'Pendente' else '' }}">{{ p.status }}</span></div>
+        <small>{{ p.created_at }}</small>
+        <p><strong>De:</strong> {{ p.old_value or '—' }}</p>
+        <p><strong>Para:</strong> {{ p.new_value or '—' }}</p>
+        {% if p.admin_note %}<p><strong>Observação:</strong> {{ p.admin_note }}</p>{% endif %}
+      </article>
+      {% else %}<p class="muted">Nenhuma solicitação registrada.</p>{% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}

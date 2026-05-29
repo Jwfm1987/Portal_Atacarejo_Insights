@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block title %}Login · Atacarejo Insights Portal{% endblock %}
+{% block content %}
+<section class="login-shell">
+  <div class="login-card">
+    <img class="login-logo" src="{{ url_for('static', filename='img/logo.png') }}" alt="Atacarejo Insights">
+    <h1>Portal de Gestão Consultiva</h1>
+    <p>Diagnóstico empresarial, estruturação de projetos e acompanhamento seguro por cliente.</p>
+    <div class="login-back"><a href="{{ url_for('index') }}">← Voltar para a página institucional</a></div>
+    <form method="post" class="form-stack">
+      <label>E-mail
+        <input type="email" name="email" placeholder="seu@email.com" required autofocus>
+      </label>
+      <label>Senha
+        <input type="password" name="password" placeholder="Digite sua senha" required>
+      </label>
+      <button class="btn-primary" type="submit">Entrar</button>
+    </form>
+    <div class="demo-box">
+      <strong>Acessos de demonstração</strong>
+      <span>Admin: admin@atacarejoinsights.com · senha: admin123</span>
+      <span>Cliente: cliente@demo.com · senha: cliente123</span>
+    </div>
+  </div>
+</section>
+{% endblock %}

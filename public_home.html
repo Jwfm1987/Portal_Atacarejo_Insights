@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+{% block title %}Atacarejo Insights · Inteligência para varejo alimentar{% endblock %}
+{% block content %}
+<nav class="public-nav">
+  <a class="public-brand" href="{{ url_for('index') }}"><img src="{{ url_for('static', filename='img/logo_full_dark.png') }}" alt="Atacarejo Insights"></a>
+  <div>
+    <a href="#mercado">Mercado</a>
+    <a href="#metodologia">Metodologia</a>
+    <a href="#cases">Cases</a>
+    <a class="btn-outline" href="{{ url_for('login') }}">Acessar portal</a>
+    <a class="btn-primary" href="{{ url_for('public_register') }}">Cadastrar interesse</a>
+  </div>
+</nav>
+
+<section class="public-hero">
+  <div>
+    <p class="eyebrow">Atacarejo Insights</p>
+    <h1>Diagnóstico, dados e estruturação inteligente para supermercados, atacarejos e varejo alimentar.</h1>
+    <p>Uma consultoria criada para ajudar empresas do setor alimentar a organizar informações, fortalecer processos, reduzir riscos e transformar oportunidades em plano de ação acompanhável.</p>
+    <div class="public-actions">
+      <a class="btn-primary" href="{{ url_for('public_register') }}">Cadastrar interesse</a>
+      <a class="btn-outline" href="{{ url_for('login') }}">Já sou cliente</a>
+      <a class="btn-outline" href="#metodologia">Entender a metodologia</a>
+    </div>
+  </div>
+  <div class="public-hero-card">
+    <img src="{{ url_for('static', filename='img/logo_full_dark.png') }}" alt="Atacarejo Insights">
+    <h2>Planejar melhor para competir melhor.</h2>
+    <p>Gestão consultiva com foco em margem, ruptura, abastecimento, compras, sortimento, operação, dados e execução.</p>
+    <p class="muted">Após o contrato, cada usuário recebe login e é direcionado automaticamente ao ambiente permitido.</p>
+  </div>
+</section>
+
+<section class="public-section" id="mercado">
+  <div class="section-title">
+    <p class="eyebrow">Por que isso importa</p>
+    <h2>O varejo alimentar ficou mais dinâmico, competitivo e orientado por dados.</h2>
+    <p>Grandes redes e estudos setoriais apontam uma direção clara: eficiência operacional, leitura do consumidor, integração de canais, supply chain robusto e tomada de decisão baseada em evidências.</p>
+  </div>
+  <div class="public-grid-3">
+    {% for insight in content.insights %}
+      <article class="panel insight-card">
+        <span class="insight-number">0{{ loop.index }}</span>
+        <h2>{{ insight.title }}</h2>
+        <p>{{ insight.text }}</p>
+        <small>{{ insight.source }}</small>
+      </article>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="public-section">
+  <div class="section-title">
+    <p class="eyebrow">Como ajudamos</p>
+    <h2>Da percepção do problema à execução acompanhada.</h2>
+  </div>
+  <div class="pillar-grid">
+    {% for pillar in content.pillars %}
+      <article class="pillar-card">
+        <span>{{ loop.index }}</span>
+        <h3>{{ pillar.title }}</h3>
+        <p>{{ pillar.text }}</p>
+      </article>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="public-section grid-2" id="metodologia">
+  <div class="panel accent-panel">
+    <p class="eyebrow">Metodologia</p>
+    <h2>Uma jornada estruturada para diagnosticar, priorizar e acompanhar.</h2>
+    <p class="readable-text">A Atacarejo Insights combina imersão com gestores, análise de dados, matriz de maturidade, plano de ação e acompanhamento do projeto. A ideia é dar clareza sobre onde a empresa está, quais gargalos mais afetam resultado e quais ações devem ser priorizadas.</p>
+    <a class="btn-primary" href="{{ url_for('public_register') }}">Quero receber contato</a>
+  </div>
+  <div class="panel">
+    <div class="method-steps">
+      {% for step in content.method_steps %}
+        <div class="method-step"><span>{{ loop.index }}</span><strong>{{ step }}</strong></div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="public-section" id="cases">
+  <div class="section-title">
+    <p class="eyebrow">Referências e inspiração</p>
+    <h2>Grandes redes crescem porque se reinventam sem perder disciplina operacional.</h2>
+  </div>
+  <div class="case-grid">
+    {% for case in content.cases %}
+      <article class="case-card">
+        <h3>{{ case.company }}</h3>
+        <p><strong>Estratégia:</strong> {{ case.strategy }}</p>
+        <p><strong>Lição:</strong> {{ case.lesson }}</p>
+      </article>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="public-section references-panel panel">
+  <div class="panel-title"><h2>Referências utilizadas nos conteúdos e insights</h2></div>
+  <div class="reference-list">
+    {% for ref in content.references %}<span>{{ ref }}</span>{% endfor %}
+  </div>
+  <p class="muted">Essas referências orientam o conteúdo institucional e a lógica consultiva. O diagnóstico de cada cliente é feito individualmente, com dados, entrevistas e evidências da própria operação.</p>
+</section>
+
+<section class="public-cta">
+  <h2>Quer entender onde seu negócio pode ganhar eficiência, margem e segurança gerencial?</h2>
+  <p>Cadastre seu interesse. A Atacarejo Insights fará contato para entender seu cenário, maturidade atual e possibilidades de projeto.</p>
+  <a class="btn-primary" href="{{ url_for('public_register') }}">Cadastrar interesse</a>
+</section>
+{% endblock %}

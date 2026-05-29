@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block title %}Cadastro de interesse · Atacarejo Insights{% endblock %}
+{% block content %}
+<nav class="public-nav">
+  <a class="public-brand" href="{{ url_for('index') }}"><img src="{{ url_for('static', filename='img/logo_full_dark.png') }}" alt="Atacarejo Insights"></a>
+  <div><a href="{{ url_for('index') }}">Página inicial</a><a class="btn-outline" href="{{ url_for('login') }}">Login</a></div>
+</nav>
+
+<section class="register-shell">
+  <div class="panel register-panel">
+    {% if success %}
+      <p class="eyebrow">Cadastro recebido</p>
+      <h1>Obrigado pelo interesse na Atacarejo Insights.</h1>
+      <p class="readable-text">Seu cadastro foi registrado. Nossa equipe entrará em contato para entender o momento da empresa, apresentar a proposta de atuação e avaliar a aderência para uma reunião de diagnóstico.</p>
+      <p class="muted-note">Os dados completos da empresa serão incluídos depois, durante a etapa comercial e após a formalização do contrato de prestação de serviço.</p>
+      <a class="btn-primary" href="{{ url_for('index') }}">Voltar à página inicial</a>
+    {% else %}
+      <p class="eyebrow">Primeiro contato</p>
+      <h1>Cadastre sua empresa para receber contato.</h1>
+      <p class="muted">Nesta etapa inicial coletamos somente os dados essenciais para contato. As demais informações serão tratadas em reunião com a equipe da Atacarejo Insights e, após contratação, no ambiente seguro do cliente.</p>
+      <form method="post" class="form-grid compact">
+        <label>Nome do solicitante<input name="contact_name" required placeholder="Nome de quem está solicitando contato"></label>
+        <label>Nome da empresa<input name="company_name" required placeholder="Razão social ou nome fantasia"></label>
+        <label>Estado da matriz
+          <select name="state" required>
+            <option value="">Selecione</option>
+            {% for uf in ['AC','AL','AP','AM','BA','CE','DF','ES','GO','MA','MT','MS','MG','PA','PB','PR','PE','PI','RJ','RN','RS','RO','RR','SC','SP','SE','TO'] %}
+            <option value="{{ uf }}">{{ uf }}</option>
+            {% endfor %}
+          </select>
+        </label>
+        <label>Telefone/WhatsApp<input name="contact_phone" required placeholder="(00) 00000-0000"></label>
+        <label class="full">E-mail para contato<input name="contact_email" type="email" required placeholder="nome@empresa.com.br"></label>
+        <div class="form-actions"><button class="btn-primary" type="submit">Solicitar contato</button></div>
+      </form>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

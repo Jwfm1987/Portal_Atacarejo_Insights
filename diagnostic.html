@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% block title %}Diagnóstico · {{ company.name }}{% endblock %}
+{% block content %}
+<header class="page-header">
+  <div>
+    <p class="eyebrow">Diagnóstico empresarial</p>
+    <h1>{{ company.name }}</h1>
+    <p>Avalie a maturidade por área em escala de 1 a 5. O diagnóstico orienta o plano de ação da consultoria.</p>
+  </div>
+  <a class="btn-outline" href="{{ url_for('company_detail', company_id=company.id) }}">Voltar</a>
+</header>
+
+{% if g.user.role in ['admin', 'consultant'] %}
+<section class="panel collapsible">
+  <details>
+    <summary>Adicionar nova área ao diagnóstico</summary>
+    <form method="post" action="{{ url_for('area_new') }}" class="form-grid compact">
+      <input type="hidden" name="company_id" value="{{ company.id }}">
+      <label>Nome da área<input name="name" placeholder="Ex.: Auditoria interna, Segurança patrimonial, Patrimônio..." required></label>
+      <label class="full">Descrição<textarea name="description" rows="3" placeholder="Descreva o escopo da área para orientar o diagnóstico."></textarea></label>
+      <div class="form-actions"><button class="btn-outline" type="submit">Adicionar área</button></div>
+    </form>
+  </details>
+</section>
+{% endif %}
+
+<section class="panel">
+  <form method="post" class="diagnostic-form">
+    {% for area in areas %}
+    {% set answer = answers.get(area.id) %}
+    <article class="diagnostic-card">
+      <div>
+        <h2>{{ area.name }}</h2>
+        <p>{{ area.description }}</p>
+      </div>
+      <div class="score-select">
+        <label>Nota</label>
+        <select name="score_{{ area.id }}" {% if g.user.role == 'client_viewer' %}disabled{% endif %}>
+          {% for n in [1,2,3,4,5] %}
+          <option value="{{ n }}" {{ 'selected' if answer and answer.score == n else '' }}>{{ n }} - {{ ['','Inicial','Básico','Estruturado','Avançado','Referência'][n] }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <label class="full">Observações e evidências
+        <textarea name="comment_{{ area.id }}" rows="3" {% if g.user.role == 'client_viewer' %}disabled{% endif %}>{{ answer.comment if answer else '' }}</textarea>
+      </label>
+    </article>
+    {% endfor %}
+    {% if g.user.role != 'client_viewer' %}
+    <div class="form-actions sticky"><button class="btn-primary" type="submit">Salvar diagnóstico</button></div>
+    {% endif %}
+  </form>
+</section>
+{% endblock %}

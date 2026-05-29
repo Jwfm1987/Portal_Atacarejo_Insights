@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block title %}Novo projeto · Atacarejo Insights{% endblock %}
+{% block content %}
+<header class="page-header"><div><p class="eyebrow">{{ company.name }}</p><h1>Novo projeto</h1><p>Estruture o escopo inicial de acompanhamento.</p></div></header>
+<section class="panel">
+  <form method="post" class="form-grid">
+    <label>Nome do projeto<input name="name" required></label>
+    <label>Fase<select name="phase"><option>Onboarding</option><option>Coleta de dados</option><option>Diagnóstico inicial</option><option>Plano de ação</option><option>Execução assistida</option><option>Monitoramento</option><option>Relatório final</option></select></label>
+    <label>Progresso (%)<input name="progress" type="number" min="0" max="100" value="0"></label>
+    <label>Status<select name="status"><option>Em andamento</option><option>Pausado</option><option>Finalizado</option></select></label>
+    <label>Início<input name="start_date" type="date"></label>
+    <label>Término previsto<input name="end_date" type="date"></label>
+    <label class="full">Objetivo<textarea name="objective" rows="5"></textarea></label>
+    <div class="form-actions"><button class="btn-primary" type="submit">Criar projeto</button></div>
+  </form>
+</section>
+{% endblock %}

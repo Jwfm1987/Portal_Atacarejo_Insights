@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+{% block title %}Sobre a Atacarejo Insights · Portal do Cliente{% endblock %}
+{% block content %}
+<header class="page-header about-hero">
+  <div>
+    <p class="eyebrow">Atacarejo Insights</p>
+    <h1>Gestão mais inteligente para empresas mais fortes, seguras e competitivas.</h1>
+    <p>Este ambiente explica, de forma direta, como a Atacarejo Insights apoia sua empresa na leitura do negócio, organização de prioridades e acompanhamento da evolução do projeto.</p>
+  </div>
+  <a class="btn-outline" href="{{ url_for('client_dashboard') }}">Voltar ao projeto</a>
+</header>
+
+<section class="about-intro panel">
+  <div class="about-logo-box">
+    <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Atacarejo Insights">
+  </div>
+  <div>
+    <p class="eyebrow">O que somos</p>
+    <h2>Uma consultoria criada para transformar dados, processos e experiência de mercado em decisões práticas.</h2>
+    <p class="readable-text">A Atacarejo Insights atua na estruturação de diagnósticos, indicadores, rotinas de gestão e planos de ação para empresas do varejo alimentar, supermercados, atacarejos e negócios com operação intensiva em compras, abastecimento, logística, loja, margem e sortimento.</p>
+    <p class="readable-text">Nosso trabalho parte de uma ideia simples: negócios mais fortes não dependem apenas de vender mais. Eles precisam comprar melhor, abastecer melhor, precificar melhor, controlar melhor e decidir com mais segurança.</p>
+  </div>
+</section>
+
+<section class="grid-2">
+  {% for insight in content.insights %}
+  <article class="panel insight-card">
+    <span class="insight-number">0{{ loop.index }}</span>
+    <h2>{{ insight.title }}</h2>
+    <p>{{ insight.text }}</p>
+    <small>{{ insight.source }}</small>
+  </article>
+  {% endfor %}
+</section>
+
+<section class="panel">
+  <div class="panel-title">
+    <div>
+      <p class="eyebrow">Como podemos ajudar</p>
+      <h2>Da imersão ao plano de ação: uma jornada para organizar, priorizar e executar.</h2>
+      <p class="muted">O objetivo é transformar a complexidade do negócio em uma visão mais clara de oportunidades, riscos e próximos passos.</p>
+    </div>
+  </div>
+  <div class="pillar-grid">
+    {% for pillar in content.pillars %}
+    <article class="pillar-card">
+      <span>{{ loop.index }}</span>
+      <h3>{{ pillar.title }}</h3>
+      <p>{{ pillar.text }}</p>
+    </article>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="grid-2">
+  <div class="panel">
+    <div class="panel-title"><h2>Metodologia aplicada ao seu projeto</h2></div>
+    <div class="method-steps">
+      {% for step in content.method_steps %}
+      <div class="method-step"><span>{{ loop.index }}</span><strong>{{ step }}</strong></div>
+      {% endfor %}
+    </div>
+  </div>
+  <div class="panel accent-panel">
+    <p class="eyebrow">Por que isso importa</p>
+    <h2>Planejamento bem estruturado reduz improviso e aumenta capacidade de resposta.</h2>
+    <p class="readable-text">No varejo alimentar, ruptura, excesso de estoque, compras desalinhadas, preço mal calibrado, baixa acuracidade de dados e comunicação frágil entre áreas afetam margem, caixa, produtividade e experiência do cliente. Uma empresa mais analítica consegue enxergar antes, priorizar melhor e agir com mais consistência.</p>
+  </div>
+</section>
+
+<section class="panel">
+  <div class="panel-title">
+    <div>
+      <p class="eyebrow">Cases e referências de mercado</p>
+      <h2>O que grandes empresas mostram sobre crescimento e reinvenção</h2>
+    </div>
+  </div>
+  <div class="case-grid">
+    {% for case in content.cases %}
+    <article class="case-card">
+      <h3>{{ case.company }}</h3>
+      <p><strong>Estratégia observada:</strong> {{ case.strategy }}</p>
+      <p><strong>Lição para o projeto:</strong> {{ case.lesson }}</p>
+    </article>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="panel references-panel">
+  <div class="panel-title"><h2>Fontes que orientam nossa leitura do mercado</h2></div>
+  <div class="reference-list">
+    {% for ref in content.references %}
+    <span>{{ ref }}</span>
+    {% endfor %}
+  </div>
+  <p class="muted smalltext">As referências são usadas como base conceitual e setorial. As recomendações finais do projeto serão construídas a partir dos dados, entrevistas, documentos e realidade operacional da sua empresa.</p>
+</section>
+{% endblock %}

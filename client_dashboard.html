@@ -1,0 +1,132 @@
+{% extends 'base.html' %}
+{% block title %}Meu projeto · Atacarejo Insights{% endblock %}
+{% block content %}
+<header class="page-header">
+  <div>
+    <p class="eyebrow">Ambiente do cliente</p>
+    <h1>{{ company.name }}</h1>
+    <p>Visualização restrita às informações da sua empresa, com diagnóstico, imersões, etapas do projeto e pendências.</p>
+  </div>
+  <div class="header-actions"><a class="btn-outline" href="{{ url_for('client_company_edit') }}">Atualizar cadastro</a><a class="btn-outline" href="{{ url_for('company_report', company_id=company.id) }}">Relatório</a></div>
+</header>
+
+
+{% if pending_changes %}
+<section class="panel approval-summary">
+  <div class="panel-title"><h2>Alterações aguardando aprovação</h2><a href="{{ url_for('client_company_edit') }}">Ver solicitações</a></div>
+  <div class="cards-row">
+    {% for cr in pending_changes %}
+    <article class="mini-card">
+      <small>{{ cr.created_at }} · {{ cr.user_name or 'Usuário' }}</small>
+      <strong>{{ cr.field_name }}</strong>
+      <span class="status-pill warning">Pendente</span>
+    </article>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
+<section class="grid-2">
+  <div class="panel hero-panel">
+    <div class="panel-title"><h2>Status dos projetos</h2></div>
+    {% for p in projects %}
+      <article class="project-card project-card-wide">
+        <div>
+          <strong>{{ p.name }}</strong>
+          <small>{{ p.phase }} · {{ p.status }} · {{ p.start_date or '-' }} até {{ p.end_date or '-' }}</small>
+        </div>
+        <div class="progress big"><span style="width: {{ p.progress }}%"></span></div>
+        <div class="card-actions"><span class="status-pill">{{ p.progress }}%</span><a class="link" href="{{ url_for('project_detail', project_id=p.id) }}">Acompanhar jornada</a></div>
+      </article>
+    {% else %}
+      <p class="muted">Nenhum projeto ativo.</p>
+    {% endfor %}
+  </div>
+
+  <div class="panel">
+    <div class="panel-title"><h2>Maturidade do diagnóstico</h2><a href="{{ url_for('diagnostic', company_id=company.id) }}">Atualizar</a></div>
+    {% for m in maturity %}
+      <div class="maturity-row">
+        <span>{{ m.name }}</span>
+        <div class="scorebar"><i style="width: {{ (m.score or 0) * 20 }}%"></i></div>
+        <strong>{{ m.score or 0 }}/5</strong>
+      </div>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="panel">
+  <div class="panel-title">
+    <div>
+      <h2>Jornada do projeto</h2>
+      <p class="muted">Etapas liberadas pela Atacarejo Insights para acompanhamento do cliente.</p>
+    </div>
+  </div>
+  <div class="journey-horizontal" aria-label="Jornada horizontal do projeto">
+    {% for s in project_stages %}
+      <a class="journey-step {{ 'done' if s.status == 'Concluída' else 'active' if s.status == 'Em andamento' else 'pending' }}"
+         href="{{ url_for('stage_detail', stage_id=s.id) }}"
+         title="{{ s.project_name }} · {{ s.status }}">
+        <span class="step-number">{{ s.sort_order }}</span>
+        <strong>{{ s.title }}</strong>
+      </a>
+    {% else %}
+      <p class="muted">A jornada do projeto ainda não foi publicada para o cliente.</p>
+    {% endfor %}
+  </div>
+  <p class="journey-hint">Clique em uma etapa para abrir as informações, datas, descrição, registros e plano de ação vinculado ao projeto.</p>
+</section>
+
+<section class="panel">
+  <div class="panel-title">
+    <div>
+      <h2>Imersões e questionários aplicados</h2>
+      <p class="muted">Aqui ficam as respostas por usuário/área: operação, compras, vendas, marketing, diretoria e demais gestores.</p>
+    </div>
+  </div>
+  <div class="questionnaire-grid">
+    {% for q in questionnaires %}
+      <article class="questionnaire-card">
+        <div class="q-head">
+          <span class="q-area">{{ q.context_area or 'Diagnóstico' }}</span>
+          <span class="status-pill">{{ q.status }}</span>
+        </div>
+        <h3>{{ q.title }}</h3>
+        <p>{{ q.description or '' }}</p>
+        <div class="q-meta">
+          <span>Perfil-alvo: <strong>{{ q.target_role or '-' }}</strong></span>
+          <span>Respondentes: <strong>{{ q.respondent_count or 0 }}</strong></span>
+          <span>Respostas: <strong>{{ q.answer_count or 0 }}</strong></span>
+        </div>
+        <a class="btn-outline full-btn" href="{{ url_for('questionnaire_detail', questionnaire_id=q.id) }}">Ver respostas e contribuir</a>
+      </article>
+    {% else %}
+      <p class="muted">Nenhum questionário liberado ainda.</p>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="grid-2">
+  <div class="panel">
+    <div class="panel-title"><h2>Pendências e tarefas</h2></div>
+    <div class="task-list">
+      {% for t in tasks %}
+      <div class="task-item">
+        <div>
+          <strong>{{ t.title }}</strong>
+          <small>{{ t.project_name }} · Responsável: {{ t.owner or '-' }} · Equipe: {{ t.responsible_team or '-' }}</small>
+          <small>Início: {{ t.start_date or '-' }} · Prazo: {{ t.due_date or '-' }} · Conclusão: {{ t.completed_at or '-' }}</small>
+        </div>
+        <span class="status-pill {{ task_condition_class(t) }}">{{ task_condition(t) }}</span>
+      </div>
+      {% else %}<p class="muted">Sem tarefas cadastradas.</p>{% endfor %}
+    </div>
+  </div>
+  <div class="panel">
+    <div class="panel-title"><h2>Dados solicitados</h2></div>
+    {% for f in files %}
+      <div class="file-row"><div><strong>{{ f.title }}</strong><small>{{ f.file_type or '-' }} · prazo {{ f.due_date or '-' }}</small></div><span class="status-pill">{{ f.status }}</span></div>
+    {% else %}<p class="muted">Nenhum documento solicitado.</p>{% endfor %}
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}{{ code }} - Atacarejo Insights Portal{% endblock %}
+{% block content %}
+<section class="hero" style="min-height:70vh;display:flex;align-items:center;justify-content:center;">
+  <div class="card" style="max-width:760px;text-align:center;">
+    <div class="eyebrow">Atacarejo Insights Portal</div>
+    <h1>{{ title or (code ~ ' - Erro') }}</h1>
+    <p class="muted" style="font-size:1.05rem;line-height:1.65;">{{ message }}</p>
+    <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:22px;">
+      <a class="btn primary" href="{{ url_for('public_home') }}">Voltar para a página inicial</a>
+      <a class="btn ghost" href="{{ url_for('login') }}">Acessar login</a>
+    </div>
+    <p class="muted" style="margin-top:18px;font-size:.85rem;">Teste técnico: <a href="/health">/health</a> · <a href="/health-db">/health-db</a></p>
+  </div>
+</section>
+{% endblock %}
