@@ -1,0 +1,19 @@
+ATACAREJO INSIGHTS PORTAL - V21
+
+Correção principal:
+- Corrigido erro do Render: jinja2.exceptions.TemplateNotFound: error.html
+- Mantido templates/error.html no pacote
+- Adicionado fallback de erro direto no app.py caso o template não seja enviado ao GitHub
+
+Configuração no Render:
+Build Command: pip install -r requirements.txt
+Start Command: python app.py
+
+Depois de enviar ao GitHub:
+Manual Deploy > Clear build cache & deploy
+
+Teste:
+/health
+/health-db
+/
+/login

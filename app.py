@@ -2522,20 +2522,65 @@ def health_db():
         return f"ERRO DB - {type(exc).__name__}: {exc}", 500
 
 
+def safe_error_response(code, title, message):
+    """Renderiza a página de erro sem depender obrigatoriamente do template.
+
+    Isso evita um erro em cascata no Render caso o arquivo templates/error.html
+    não seja enviado ao repositório ou seja removido por engano.
+    """
+    try:
+        return render_template("error.html", code=code, title=title, message=message), code
+    except Exception as template_exc:
+        print("[Atacarejo Insights] Falha ao renderizar templates/error.html", file=sys.stderr, flush=True)
+        traceback.print_exc(file=sys.stderr)
+        html = f"""
+        <!doctype html>
+        <html lang=\"pt-BR\">
+        <head>
+            <meta charset=\"utf-8\">
+            <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">
+            <title>{code} - Atacarejo Insights Portal</title>
+            <style>
+                body {{ margin:0; min-height:100vh; display:grid; place-items:center;
+                    background:#07030d; color:#f8f7ff; font-family:Arial, sans-serif; }}
+                .card {{ max-width:760px; margin:24px; padding:32px; border-radius:22px;
+                    background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.12); }}
+                h1 {{ margin:0 0 12px; font-size:28px; }}
+                p {{ color:#d9d2ec; line-height:1.55; }}
+                a {{ color:#ff9f1a; font-weight:700; }}
+                .badge {{ display:inline-block; padding:6px 10px; border-radius:999px;
+                    background:linear-gradient(90deg,#6610f2,#ff9f1a); margin-bottom:16px; }}
+                code {{ color:#ffcf7a; }}
+            </style>
+        </head>
+        <body>
+            <main class=\"card\">
+                <div class=\"badge\">Atacarejo Insights Portal</div>
+                <h1>{title}</h1>
+                <p>{message}</p>
+                <p>Teste técnico: <a href=\"/health\">/health</a> · <a href=\"/health-db\">/health-db</a></p>
+                <p style=\"font-size:13px;color:#aaa\">Fallback ativo porque o template de erro não foi carregado. Verifique se a pasta <code>templates</code> foi enviada ao GitHub.</p>
+            </main>
+        </body>
+        </html>
+        """
+        return html, code
+
+
 @app.errorhandler(500)
 def internal_error(e):
     traceback.print_exc(file=sys.stderr)
-    return render_template("error.html", code=500, message="Erro interno no servidor. Acesse /health-db para validar o banco e veja os Logs do Render para o detalhe técnico."), 500
+    return safe_error_response(500, "Erro interno no servidor", "O servidor encontrou uma falha ao processar a solicitação. Acesse /health-db para validar o banco e veja os Logs do Render para o detalhe técnico.")
 
 
 @app.errorhandler(403)
 def forbidden(e):
-    return render_template("error.html", code=403, message="Acesso negado. Este ambiente respeita isolamento por cliente e perfil de usuário."), 403
+    return safe_error_response(403, "Acesso negado", "Este ambiente respeita isolamento por cliente e perfil de usuário.")
 
 
 @app.errorhandler(404)
 def not_found(e):
-    return render_template("error.html", code=404, message="Página ou registro não encontrado."), 404
+    return safe_error_response(404, "Página não encontrada", "Página ou registro não encontrado.")
 
 
 if __name__ == "__main__":
